@@ -1,4 +1,4 @@
-import { LayoutDashboard, MessageSquare, Send, AlertTriangle, Route } from "lucide-react";
+import { LayoutDashboard, Send, AlertTriangle, Route } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -15,10 +15,9 @@ import {
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Mensagens", url: "/mensagens", icon: MessageSquare },
-  { title: "Entregas", url: "/entregas", icon: Send },
-  { title: "Erros", url: "/erros", icon: AlertTriangle },
+  { title: "Envios", url: "/mensagens", icon: Send },
   { title: "Rotas", url: "/rotas", icon: Route },
+  { title: "Erros", url: "/erros", icon: AlertTriangle },
 ];
 
 export function AppSidebar() {
