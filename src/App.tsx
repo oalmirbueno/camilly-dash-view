@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Mensagens from "./pages/Mensagens";
 import Erros from "./pages/Erros";
 import Rotas from "./pages/Rotas";
+import Templates from "./pages/Templates";
+import Links from "./pages/Links";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/entregas" element={<Navigate to="/mensagens" replace />} />
             <Route path="/erros" element={<Erros />} />
             <Route path="/rotas" element={<Rotas />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/links" element={<Links />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
