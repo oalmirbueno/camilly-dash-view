@@ -32,7 +32,9 @@ import {
 } from "@/components/ui/table";
 import { LoadingRows, EmptyState, ErrorState } from "@/components/StateViews";
 import { toast } from "@/hooks/use-toast";
-import { Pencil, ExternalLink } from "lucide-react";
+import { Pencil, ExternalLink, Lock, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Link as RouterLink } from "react-router-dom";
 
 type Link = {
   id: string;
@@ -111,6 +113,8 @@ function StatusBadge({ status }: { status: LinkStatus }) {
 
 export default function Links() {
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const canEdit = !!user;
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -235,8 +239,32 @@ export default function Links() {
             tabela.
           </p>
         </div>
-        <Button onClick={() => setCreating(true)}>Novo link</Button>
+        <Button onClick={() => setCreating(true)} disabled={!canEdit}>
+          {canEdit ? "Novo link" : (
+            <>
+              <Lock className="h-4 w-4 mr-1" />
+              Novo link
+            </>
+          )}
+        </Button>
       </div>
+
+      {!canEdit && (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span>
+              Visualização liberada. Faça login para criar ou editar links.
+            </span>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <RouterLink to="/login">
+              <LogIn className="h-4 w-4 mr-1" />
+              Entrar
+            </RouterLink>
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
@@ -382,8 +410,18 @@ export default function Links() {
                       {fmtDate(l.updated_at)}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => setEditing(l)}>
-                        <Pencil className="h-4 w-4" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditing(l)}
+                        disabled={!canEdit}
+                        title={canEdit ? "Editar" : "Faça login para editar"}
+                      >
+                        {canEdit ? (
+                          <Pencil className="h-4 w-4" />
+                        ) : (
+                          <Lock className="h-4 w-4" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>

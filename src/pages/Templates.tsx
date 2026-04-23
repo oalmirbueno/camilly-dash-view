@@ -32,7 +32,9 @@ import {
 } from "@/components/ui/table";
 import { LoadingRows, EmptyState, ErrorState } from "@/components/StateViews";
 import { toast } from "@/hooks/use-toast";
-import { Pencil } from "lucide-react";
+import { Pencil, Lock, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Link as RouterLink } from "react-router-dom";
 
 type Template = {
   id: string;
@@ -67,6 +69,8 @@ function fmtDate(s: string | null) {
 
 export default function Templates() {
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const canEdit = !!user;
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -134,6 +138,23 @@ export default function Templates() {
           em produção.
         </p>
       </div>
+
+      {!canEdit && (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <span>
+              Visualização liberada. Faça login para editar templates.
+            </span>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <RouterLink to="/login">
+              <LogIn className="h-4 w-4 mr-1" />
+              Entrar
+            </RouterLink>
+          </Button>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -246,8 +267,14 @@ export default function Templates() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditing(t)}
+                        disabled={!canEdit}
+                        title={canEdit ? "Editar" : "Faça login para editar"}
                       >
-                        <Pencil className="h-4 w-4" />
+                        {canEdit ? (
+                          <Pencil className="h-4 w-4" />
+                        ) : (
+                          <Lock className="h-4 w-4" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>
