@@ -76,12 +76,12 @@ const PLATFORM_LABELS: Record<string, string> = {
   whatsapp: "WhatsApp",
 };
 
-const DEFAULTS = {
+const DEFAULTS: Record<"q" | "platform" | "status" | "route", string> = {
   q: "",
   platform: "all",
   status: "all",
   route: "all",
-} as const;
+};
 
 export default function Mensagens() {
   const { filters, setFilter, reset, activeKeys } = usePersistentFilters(
