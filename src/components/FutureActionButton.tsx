@@ -20,7 +20,7 @@ type Props = {
 };
 
 /**
- * "Em breve" button — clearly marked as not-yet-available.
+ * "Em breve" button - clearly marked as not-yet-available.
  *
  * - Always disabled, but clickable (via wrapping span) so non-technical
  *   users get a friendly popover explaining what it does.

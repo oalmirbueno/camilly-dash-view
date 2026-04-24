@@ -135,7 +135,7 @@ export function AutomationToggle({ paused }: Props) {
               ) : (
                 <>
                   Ao confirmar, a automação Camilly voltará a <strong>operar
-                  normalmente</strong> — captura, processamento e envios serão
+                  normalmente</strong> · captura, processamento e envios serão
                   retomados imediatamente.
                 </>
               )}

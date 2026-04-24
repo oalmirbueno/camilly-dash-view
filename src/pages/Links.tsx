@@ -55,7 +55,7 @@ type Link = {
 const LINK_TYPES = ["fixed", "daily", "recent", "rtp", "platform"] as const;
 
 function fmtDate(s: string | null) {
-  if (!s) return "—";
+  if (!s) return "";
   try {
     return new Date(s).toLocaleString("pt-BR");
   } catch {
@@ -64,7 +64,7 @@ function fmtDate(s: string | null) {
 }
 
 function fmtDateOnly(s: string | null) {
-  if (!s) return "—";
+  if (!s) return "";
   try {
     return new Date(s).toLocaleDateString("pt-BR");
   } catch {
@@ -383,13 +383,13 @@ export default function Links() {
                     <TableCell>
                       <StatusBadge status={getStatus(l)} />
                     </TableCell>
-                    <TableCell className="font-medium">{l.short_label ?? "—"}</TableCell>
+                    <TableCell className="font-medium">{l.short_label ?? ""}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{l.link_type ?? "—"}</Badge>
+                      <Badge variant="outline">{l.link_type ?? ""}</Badge>
                     </TableCell>
-                    <TableCell>{l.platform_name ?? "—"}</TableCell>
+                    <TableCell>{l.platform_name ?? ""}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {l.campaign_name ?? "—"}
+                      {l.campaign_name ?? ""}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {l.fixed_link ? (
@@ -412,7 +412,7 @@ export default function Links() {
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        "—"
+                        ""
                       )}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">

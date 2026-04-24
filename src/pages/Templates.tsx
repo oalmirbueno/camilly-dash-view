@@ -59,7 +59,7 @@ const CATEGORIES = [
 ] as const;
 
 function fmtDate(s: string | null) {
-  if (!s) return "—";
+  if (!s) return "";
   try {
     return new Date(s).toLocaleString("pt-BR");
   } catch {
@@ -138,7 +138,7 @@ export default function Templates() {
         </div>
         <h1 className="font-display text-foreground">Templates de mensagem</h1>
         <p className="body-text max-w-2xl">
-          Modelos reais usados pelo motor de envio. Edite com cuidado — o n8n
+          Modelos reais usados pelo motor de envio. Edite com cuidado · o n8n
           lê esta tabela em produção.
         </p>
         <div className="line-gold mt-1" />
@@ -247,10 +247,10 @@ export default function Templates() {
                       {t.template_key}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{t.category ?? "—"}</Badge>
+                      <Badge variant="outline">{t.category ?? ""}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{t.channel_scope ?? "—"}</Badge>
+                      <Badge variant="secondary">{t.channel_scope ?? ""}</Badge>
                     </TableCell>
                     <TableCell>
                       {t.active ? (
@@ -264,7 +264,7 @@ export default function Templates() {
                     </TableCell>
                     <TableCell className="max-w-xs">
                       <p className="text-xs text-muted-foreground line-clamp-2">
-                        {t.body_template ?? "—"}
+                        {t.body_template ?? ""}
                       </p>
                     </TableCell>
                     <TableCell>

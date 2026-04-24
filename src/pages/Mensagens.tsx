@@ -55,12 +55,12 @@ const statusBadge = (status: string | null) => {
     case "pending":
       return <Badge className="bg-warning text-warning-foreground rounded-none">Pendente</Badge>;
     default:
-      return <Badge variant="secondary" className="rounded-none">{status ?? "—"}</Badge>;
+      return <Badge variant="secondary" className="rounded-none">{status ?? ""}</Badge>;
   }
 };
 
 const channelLabel = (p: string | null) => {
-  if (!p) return "—";
+  if (!p) return "";
   if (p === "telegram") return "Telegram";
   if (p === "whatsapp") return "WhatsApp";
   return p;
@@ -143,7 +143,7 @@ export default function Mensagens() {
       if (r.destination_platform === "telegram") telegram++;
       else if (r.destination_platform === "whatsapp") whatsapp++;
     });
-    const pct = (n: number) => (total === 0 ? "—" : `${Math.round((n / total) * 100)}%`);
+    const pct = (n: number) => (total === 0 ? "" : `${Math.round((n / total) * 100)}%`);
     return [
       { label: "Resultados", value: total },
       { label: "Sucesso", value: total ? `${sent} · ${pct(sent)}` : "0", tone: "success" },
@@ -195,7 +195,7 @@ export default function Mensagens() {
         </div>
         <h1 className="font-display text-foreground">Envios</h1>
         <p className="body-text max-w-xl">
-          Feed de envios em tempo real — Telegram e WhatsApp. Atualiza a cada 30s.
+          Feed de envios em tempo real · Telegram e WhatsApp. Atualiza a cada 30s.
         </p>
         <div className="line-gold mt-1" />
       </header>
@@ -282,26 +282,26 @@ export default function Mensagens() {
                       )}
                     </div>
                     <time className="text-[10.5px] text-muted-foreground tracking-wider uppercase whitespace-nowrap shrink-0 pt-0.5">
-                      {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : "—"}
+                      {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : ""}
                     </time>
                   </div>
 
                   <p className="text-[13.5px] leading-relaxed text-foreground line-clamp-3">
-                    {r.delivery_text_preview ?? "—"}
+                    {r.delivery_text_preview ?? ""}
                   </p>
 
                   <dl className="grid grid-cols-1 gap-1.5 pt-1 border-t border-border/60">
                     <div className="data-row">
                       <dt>Rota</dt>
-                      <dd>{r.route_name ?? "—"}</dd>
+                      <dd>{r.route_name ?? ""}</dd>
                     </div>
                     <div className="data-row">
                       <dt>Destino</dt>
-                      <dd>{r.destination_name ?? "—"}</dd>
+                      <dd>{r.destination_name ?? ""}</dd>
                     </div>
                     <div className="data-row">
                       <dt>Origem</dt>
-                      <dd>{r.source_name ?? "—"}</dd>
+                      <dd>{r.source_name ?? ""}</dd>
                     </div>
                     {r.external_delivery_id && (
                       <div className="data-row">
@@ -346,7 +346,7 @@ export default function Mensagens() {
                   {rows.map((r) => (
                     <TableRow key={r.delivery_attempt_id}>
                       <TableCell className="text-xs whitespace-nowrap">
-                        {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : "—"}
+                        {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : ""}
                       </TableCell>
                       <TableCell>{statusBadge(r.delivery_status)}</TableCell>
                       <TableCell>
@@ -354,22 +354,22 @@ export default function Mensagens() {
                           {channelLabel(r.destination_platform)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm">{r.route_name ?? "—"}</TableCell>
-                      <TableCell className="text-sm">{r.destination_name ?? "—"}</TableCell>
+                      <TableCell className="text-sm">{r.route_name ?? ""}</TableCell>
+                      <TableCell className="text-sm">{r.destination_name ?? ""}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="rounded-none">
-                          {r.category ?? "—"}
+                          {r.category ?? ""}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm max-w-md truncate">
-                        {r.delivery_text_preview ?? "—"}
+                        {r.delivery_text_preview ?? ""}
                       </TableCell>
-                      <TableCell className="text-xs">{r.source_name ?? "—"}</TableCell>
+                      <TableCell className="text-xs">{r.source_name ?? ""}</TableCell>
                       <TableCell className="text-xs font-mono">
-                        {r.external_delivery_id ?? "—"}
+                        {r.external_delivery_id ?? ""}
                       </TableCell>
                       <TableCell className="text-xs font-mono text-muted-foreground max-w-[180px] truncate">
-                        {r.message_uid ?? "—"}
+                        {r.message_uid ?? ""}
                       </TableCell>
                       <TableCell className="text-right">
                         {r.delivery_status === "failed" && (

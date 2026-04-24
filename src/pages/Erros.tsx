@@ -27,7 +27,7 @@ export default function Erros() {
       case "high": return <Badge variant="destructive" className="rounded-none">Alto</Badge>;
       case "medium": return <Badge className="bg-warning text-warning-foreground rounded-none">Médio</Badge>;
       case "low": return <Badge variant="secondary" className="rounded-none">Baixo</Badge>;
-      default: return <Badge variant="secondary" className="rounded-none">{severity ?? "—"}</Badge>;
+      default: return <Badge variant="secondary" className="rounded-none">{severity ?? ""}</Badge>;
     }
   };
 
@@ -40,7 +40,7 @@ export default function Erros() {
         </div>
         <h1 className="font-display text-foreground">Erros</h1>
         <p className="body-text max-w-xl">
-          Log de erros da automação — atualizado a cada 30s.
+          Log de erros da automação · atualizado a cada 30s.
         </p>
         <div className="line-gold mt-1" />
       </header>
@@ -64,7 +64,7 @@ export default function Erros() {
                     <div className="flex flex-wrap items-center gap-1.5">
                       {severityBadge(err.severity)}
                       <Badge variant="outline" className="rounded-none text-[10px]">
-                        {err.layer ?? "—"}
+                        {err.layer ?? ""}
                       </Badge>
                       {err.resolved ? (
                         <Badge className="bg-success text-success-foreground rounded-none text-[10px]">
@@ -77,11 +77,11 @@ export default function Erros() {
                       )}
                     </div>
                     <time className="text-[10.5px] text-muted-foreground tracking-wider uppercase whitespace-nowrap">
-                      {err.created_at ? new Date(err.created_at).toLocaleString("pt-BR") : "—"}
+                      {err.created_at ? new Date(err.created_at).toLocaleString("pt-BR") : ""}
                     </time>
                   </div>
                   <p className="text-[13.5px] leading-relaxed text-foreground break-words">
-                    {err.error_message ?? "—"}
+                    {err.error_message ?? ""}
                   </p>
                   {!err.resolved && (
                     <div className="pt-1">
@@ -113,13 +113,13 @@ export default function Erros() {
                   {errors.map((err, i) => (
                     <TableRow key={i}>
                       <TableCell className="text-xs whitespace-nowrap">
-                        {err.created_at ? new Date(err.created_at).toLocaleString("pt-BR") : "—"}
+                        {err.created_at ? new Date(err.created_at).toLocaleString("pt-BR") : ""}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="rounded-none">{err.layer ?? "—"}</Badge>
+                        <Badge variant="outline" className="rounded-none">{err.layer ?? ""}</Badge>
                       </TableCell>
                       <TableCell>{severityBadge(err.severity)}</TableCell>
-                      <TableCell className="text-sm max-w-md truncate">{err.error_message ?? "—"}</TableCell>
+                      <TableCell className="text-sm max-w-md truncate">{err.error_message ?? ""}</TableCell>
                       <TableCell>
                         {err.resolved ? (
                           <span className="text-success font-medium text-sm">Sim</span>
