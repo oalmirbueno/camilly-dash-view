@@ -230,36 +230,45 @@ export default function Links() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Links de afiliado</h1>
-          <p className="text-sm text-muted-foreground">
-            Links reais que o motor distribui. O painel reflete sempre o estado atual da
-            tabela.
+    <div className="space-y-6 sm:space-y-8">
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="space-y-2 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="sparkle-dot" />
+            <p className="section-label">Conteúdo · Distribuição</p>
+          </div>
+          <h1 className="font-display text-foreground">Links de afiliado</h1>
+          <p className="body-text max-w-xl">
+            Links reais que o motor distribui. O painel reflete sempre o estado
+            atual da tabela.
           </p>
+          <div className="line-gold mt-1" />
         </div>
-        <Button onClick={() => setCreating(true)} disabled={!canEdit}>
+        <Button
+          onClick={() => setCreating(true)}
+          disabled={!canEdit}
+          className="rounded-none uppercase tracking-wider text-[11px] h-10 self-start sm:self-auto shrink-0"
+        >
           {canEdit ? "Novo link" : (
             <>
-              <Lock className="h-4 w-4 mr-1" />
+              <Lock className="h-4 w-4 mr-1.5" />
               Novo link
             </>
           )}
         </Button>
-      </div>
+      </header>
 
       {!canEdit && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-border bg-muted/30 px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Lock className="h-4 w-4 text-muted-foreground" />
+            <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>
               Visualização liberada. Faça login para criar ou editar links.
             </span>
           </div>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild size="sm" variant="outline" className="rounded-none uppercase tracking-wider text-[11px] self-start sm:self-auto">
             <RouterLink to="/login">
-              <LogIn className="h-4 w-4 mr-1" />
+              <LogIn className="h-4 w-4 mr-1.5" />
               Entrar
             </RouterLink>
           </Button>
@@ -267,28 +276,28 @@ export default function Links() {
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground">Ativos agora</p>
-            <p className="text-2xl font-bold">{counts.active_now}</p>
+        <Card className="rounded-none border-border">
+          <CardContent className="pt-4 pb-4">
+            <p className="section-label text-[9.5px] mb-2">Ativos agora</p>
+            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.active_now}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground">Fixos</p>
-            <p className="text-2xl font-bold">{counts.fixed}</p>
+        <Card className="rounded-none border-border">
+          <CardContent className="pt-4 pb-4">
+            <p className="section-label text-[9.5px] mb-2">Fixos</p>
+            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.fixed}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground">Agendados</p>
-            <p className="text-2xl font-bold">{counts.scheduled}</p>
+        <Card className="rounded-none border-border">
+          <CardContent className="pt-4 pb-4">
+            <p className="section-label text-[9.5px] mb-2">Agendados</p>
+            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.scheduled}</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-xs text-muted-foreground">Vencidos</p>
-            <p className="text-2xl font-bold">{counts.expired}</p>
+        <Card className="rounded-none border-border">
+          <CardContent className="pt-4 pb-4">
+            <p className="section-label text-[9.5px] mb-2">Vencidos</p>
+            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.expired}</p>
           </CardContent>
         </Card>
       </div>

@@ -130,26 +130,31 @@ export default function Templates() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Templates de mensagem</h1>
-        <p className="text-sm text-muted-foreground">
-          Modelos reais usados pelo motor de envio. Edite com cuidado — o n8n lê esta tabela
-          em produção.
+    <div className="space-y-6 sm:space-y-8">
+      <header className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="sparkle-dot" />
+          <p className="section-label">Conteúdo · Modelos</p>
+        </div>
+        <h1 className="font-display text-foreground">Templates de mensagem</h1>
+        <p className="body-text max-w-2xl">
+          Modelos reais usados pelo motor de envio. Edite com cuidado — o n8n
+          lê esta tabela em produção.
         </p>
-      </div>
+        <div className="line-gold mt-1" />
+      </header>
 
       {!canEdit && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/30 px-4 py-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-border bg-muted/30 px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Lock className="h-4 w-4 text-muted-foreground" />
+            <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>
               Visualização liberada. Faça login para editar templates.
             </span>
           </div>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild size="sm" variant="outline" className="rounded-none uppercase tracking-wider text-[11px] self-start sm:self-auto">
             <RouterLink to="/login">
-              <LogIn className="h-4 w-4 mr-1" />
+              <LogIn className="h-4 w-4 mr-1.5" />
               Entrar
             </RouterLink>
           </Button>

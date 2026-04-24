@@ -46,13 +46,13 @@ type DeliveryRow = {
 const statusBadge = (status: string | null) => {
   switch (status) {
     case "sent":
-      return <Badge className="bg-success text-success-foreground">Enviada</Badge>;
+      return <Badge className="bg-success text-success-foreground rounded-none">Enviada</Badge>;
     case "failed":
-      return <Badge variant="destructive">Falha</Badge>;
+      return <Badge variant="destructive" className="rounded-none">Falha</Badge>;
     case "pending":
-      return <Badge className="bg-warning text-warning-foreground">Pendente</Badge>;
+      return <Badge className="bg-warning text-warning-foreground rounded-none">Pendente</Badge>;
     default:
-      return <Badge variant="secondary">{status ?? "—"}</Badge>;
+      return <Badge variant="secondary" className="rounded-none">{status ?? "—"}</Badge>;
   }
 };
 
@@ -109,26 +109,33 @@ export default function Mensagens() {
   }, [data]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Envios</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Feed de envios em tempo real — Telegram e WhatsApp
+    <div className="space-y-6 sm:space-y-8">
+      {/* Header editorial */}
+      <header className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="sparkle-dot" />
+          <p className="section-label">Operação · Tempo real</p>
+        </div>
+        <h1 className="font-display text-foreground">Envios</h1>
+        <p className="body-text max-w-xl">
+          Feed de envios em tempo real — Telegram e WhatsApp. Atualiza a cada 30s.
         </p>
-      </div>
+        <div className="line-gold mt-1" />
+      </header>
 
-      <div className="flex flex-col lg:flex-row gap-3">
-        <div className="relative flex-1">
+      {/* Filtros */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_11rem_10rem_14rem] gap-2.5 sm:gap-3">
+        <div className="relative sm:col-span-2 lg:col-span-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por texto, destino, rota ou ID..."
+            placeholder="Buscar por texto, destino, rota ou ID…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 rounded-none h-10"
           />
         </div>
         <Select value={platform} onValueChange={setPlatform}>
-          <SelectTrigger className="w-full lg:w-44">
+          <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Plataforma" />
           </SelectTrigger>
           <SelectContent>
@@ -138,7 +145,7 @@ export default function Mensagens() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full lg:w-40">
+          <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -149,7 +156,7 @@ export default function Mensagens() {
           </SelectContent>
         </Select>
         <Select value={route} onValueChange={setRoute}>
-          <SelectTrigger className="w-full lg:w-56">
+          <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Rota" />
           </SelectTrigger>
           <SelectContent>
@@ -163,7 +170,8 @@ export default function Mensagens() {
         </Select>
       </div>
 
-      <div className="border border-border rounded-xl overflow-hidden bg-card">
+      {/* Resultado: cards no mobile, tabela no md+ */}
+      <div className="border border-border bg-card overflow-hidden">
         {error ? (
           <ErrorState error={error} source="vw_camilly_delivery_feed" />
         ) : isLoading ? (
@@ -171,52 +179,108 @@ export default function Mensagens() {
         ) : rows.length === 0 ? (
           <EmptyState message="Nenhum envio encontrado para esses filtros" />
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Enviada em</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Canal</TableHead>
-                  <TableHead>Rota</TableHead>
-                  <TableHead>Destino</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead className="max-w-md">Mensagem</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead>ID externo</TableHead>
-                  <TableHead>UID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((r) => (
-                  <TableRow key={r.delivery_attempt_id}>
-                    <TableCell className="text-xs whitespace-nowrap">
+          <>
+            {/* MOBILE: stacked cards */}
+            <div className="md:hidden divide-y divide-border">
+              {rows.map((r) => (
+                <article key={r.delivery_attempt_id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {statusBadge(r.delivery_status)}
+                      <Badge variant="outline" className="rounded-none text-[10px]">
+                        {channelLabel(r.destination_platform)}
+                      </Badge>
+                      {r.category && (
+                        <Badge variant="secondary" className="rounded-none text-[10px]">
+                          {r.category}
+                        </Badge>
+                      )}
+                    </div>
+                    <time className="text-[10.5px] text-muted-foreground tracking-wider uppercase whitespace-nowrap shrink-0 pt-0.5">
                       {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : "—"}
-                    </TableCell>
-                    <TableCell>{statusBadge(r.delivery_status)}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{channelLabel(r.destination_platform)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{r.route_name ?? "—"}</TableCell>
-                    <TableCell className="text-sm">{r.destination_name ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{r.category ?? "—"}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm max-w-md truncate">
-                      {r.delivery_text_preview ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-xs">{r.source_name ?? "—"}</TableCell>
-                    <TableCell className="text-xs font-mono">
-                      {r.external_delivery_id ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-xs font-mono text-muted-foreground max-w-[180px] truncate">
-                      {r.message_uid ?? "—"}
-                    </TableCell>
+                    </time>
+                  </div>
+
+                  <p className="text-[13.5px] leading-relaxed text-foreground line-clamp-3">
+                    {r.delivery_text_preview ?? "—"}
+                  </p>
+
+                  <dl className="grid grid-cols-1 gap-1.5 pt-1 border-t border-border/60">
+                    <div className="data-row">
+                      <dt>Rota</dt>
+                      <dd>{r.route_name ?? "—"}</dd>
+                    </div>
+                    <div className="data-row">
+                      <dt>Destino</dt>
+                      <dd>{r.destination_name ?? "—"}</dd>
+                    </div>
+                    <div className="data-row">
+                      <dt>Origem</dt>
+                      <dd>{r.source_name ?? "—"}</dd>
+                    </div>
+                    {r.external_delivery_id && (
+                      <div className="data-row">
+                        <dt>ID externo</dt>
+                        <dd className="font-mono text-[11px] break-all">{r.external_delivery_id}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </article>
+              ))}
+            </div>
+
+            {/* DESKTOP: tabela completa */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Enviada em</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Canal</TableHead>
+                    <TableHead>Rota</TableHead>
+                    <TableHead>Destino</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead className="max-w-md">Mensagem</TableHead>
+                    <TableHead>Origem</TableHead>
+                    <TableHead>ID externo</TableHead>
+                    <TableHead>UID</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((r) => (
+                    <TableRow key={r.delivery_attempt_id}>
+                      <TableCell className="text-xs whitespace-nowrap">
+                        {r.sent_at ? new Date(r.sent_at).toLocaleString("pt-BR") : "—"}
+                      </TableCell>
+                      <TableCell>{statusBadge(r.delivery_status)}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="rounded-none">
+                          {channelLabel(r.destination_platform)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">{r.route_name ?? "—"}</TableCell>
+                      <TableCell className="text-sm">{r.destination_name ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="rounded-none">
+                          {r.category ?? "—"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm max-w-md truncate">
+                        {r.delivery_text_preview ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-xs">{r.source_name ?? "—"}</TableCell>
+                      <TableCell className="text-xs font-mono">
+                        {r.external_delivery_id ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-muted-foreground max-w-[180px] truncate">
+                        {r.message_uid ?? "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </div>
     </div>

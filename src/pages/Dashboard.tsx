@@ -80,19 +80,19 @@ export default function Dashboard() {
         />
         <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
 
-        <div className="relative p-6 sm:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+        <div className="relative p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 lg:gap-8">
           <div className="min-w-0 max-w-2xl">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <span className="sparkle-dot" />
               <p className="section-label">Painel · Visão geral</p>
             </div>
-            <h1 className="font-display text-[2.5rem] sm:text-[3.25rem] text-foreground leading-[1] tracking-tight">
+            <h1 className="font-display text-foreground leading-[1.05]">
               Operação <span className="heading-accent text-gold">em tempo real</span>
             </h1>
-            <div className="mt-5 line-gold" />
-            <p className="body-text mt-5">
-              Monitoramento ao vivo da automação Camilly — captura, processamento e
-              entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
+            <div className="mt-4 sm:mt-5 line-gold" />
+            <p className="body-text mt-4 sm:mt-5">
+              Monitoramento ao vivo da automação Camilly — captura, processamento
+              e entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
             </p>
           </div>
 
@@ -125,14 +125,14 @@ export default function Dashboard() {
         <>
           {/* ============ FLOW SECTION ============ */}
           <section>
-            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
-              <div>
-                <p className="section-label mb-2">Fluxo · Últimas 24 horas</p>
-                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+            <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5 pb-3 border-b border-border">
+              <div className="min-w-0">
+                <p className="section-label mb-1.5 sm:mb-2">Fluxo · Últimas 24 horas</p>
+                <h2 className="font-display text-foreground leading-tight">
                   Pipeline operacional
                 </h2>
               </div>
-              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+              <span className="hidden sm:inline-block text-[11px] text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1 shrink-0">
                 4 etapas
               </span>
             </div>
@@ -167,14 +167,14 @@ export default function Dashboard() {
 
           {/* ============ DELIVERY SECTION ============ */}
           <section>
-            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
-              <div>
-                <p className="section-label mb-2">Entregas · Últimas 24 horas</p>
-                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+            <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5 pb-3 border-b border-border">
+              <div className="min-w-0">
+                <p className="section-label mb-1.5 sm:mb-2">Entregas · Últimas 24 horas</p>
+                <h2 className="font-display text-foreground leading-tight">
                   Resultado por canal
                 </h2>
               </div>
-              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+              <span className="hidden sm:inline-block text-[11px] text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1 shrink-0">
                 Telegram · WhatsApp
               </span>
             </div>
