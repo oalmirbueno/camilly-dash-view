@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { ErrorState, LoadingRows, EmptyState } from "@/components/StateViews";
+import { usePersistentFilters } from "@/hooks/usePersistentFilters";
+import { FilterSummary, type ActiveChip, type SummaryStat } from "@/components/FilterSummary";
 
 type DeliveryRow = {
   delivery_attempt_id: string;
@@ -63,11 +65,30 @@ const channelLabel = (p: string | null) => {
   return p;
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  sent: "Enviada",
+  failed: "Falha",
+  pending: "Pendente",
+};
+
+const PLATFORM_LABELS: Record<string, string> = {
+  telegram: "Telegram",
+  whatsapp: "WhatsApp",
+};
+
+const DEFAULTS: Record<"q" | "platform" | "status" | "route", string> = {
+  q: "",
+  platform: "all",
+  status: "all",
+  route: "all",
+};
+
 export default function Mensagens() {
-  const [search, setSearch] = useState("");
-  const [platform, setPlatform] = useState("all");
-  const [status, setStatus] = useState("all");
-  const [route, setRoute] = useState("all");
+  const { filters, setFilter, reset, activeKeys } = usePersistentFilters(
+    "filters:mensagens",
+    DEFAULTS,
+  );
+  const { q: search, platform, status, route } = filters;
 
   const { data, isLoading, error } = useQuery<DeliveryRow[]>({
     queryKey: ["vw_camilly_delivery_feed", platform, status, route],
@@ -108,6 +129,61 @@ export default function Mensagens() {
     return Array.from(set).sort();
   }, [data]);
 
+  // Resumo dos resultados filtrados
+  const summary = useMemo<SummaryStat[]>(() => {
+    const total = rows.length;
+    let sent = 0;
+    let failed = 0;
+    let telegram = 0;
+    let whatsapp = 0;
+    rows.forEach((r) => {
+      if (r.delivery_status === "sent") sent++;
+      else if (r.delivery_status === "failed") failed++;
+      if (r.destination_platform === "telegram") telegram++;
+      else if (r.destination_platform === "whatsapp") whatsapp++;
+    });
+    const pct = (n: number) => (total === 0 ? "—" : `${Math.round((n / total) * 100)}%`);
+    return [
+      { label: "Resultados", value: total },
+      { label: "Sucesso", value: total ? `${sent} · ${pct(sent)}` : "0", tone: "success" },
+      { label: "Falhas", value: total ? `${failed} · ${pct(failed)}` : "0", tone: "destructive" },
+      {
+        label: "Telegram / WhatsApp",
+        value: `${telegram} / ${whatsapp}`,
+        tone: "muted",
+      },
+    ];
+  }, [rows]);
+
+  const chips: ActiveChip[] = useMemo(() => {
+    const list: ActiveChip[] = [];
+    activeKeys.forEach((k) => {
+      const key = k as keyof typeof DEFAULTS;
+      const val = filters[key];
+      let label = "";
+      switch (key) {
+        case "q":
+          label = `Busca: "${val}"`;
+          break;
+        case "platform":
+          label = `Canal: ${PLATFORM_LABELS[val] ?? val}`;
+          break;
+        case "status":
+          label = `Status: ${STATUS_LABELS[val] ?? val}`;
+          break;
+        case "route":
+          label = `Rota: ${val}`;
+          break;
+      }
+      list.push({
+        key: key as string,
+        label,
+        onClear: () => setFilter(key, DEFAULTS[key]),
+      });
+    });
+    return list;
+  }, [activeKeys, filters, setFilter]);
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header editorial */}
@@ -130,11 +206,11 @@ export default function Mensagens() {
           <Input
             placeholder="Buscar por texto, destino, rota ou ID…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setFilter("q", e.target.value)}
             className="pl-9 rounded-none h-10"
           />
         </div>
-        <Select value={platform} onValueChange={setPlatform}>
+        <Select value={platform} onValueChange={(v) => setFilter("platform", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Plataforma" />
           </SelectTrigger>
@@ -144,7 +220,7 @@ export default function Mensagens() {
             <SelectItem value="whatsapp">WhatsApp</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={(v) => setFilter("status", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -155,7 +231,7 @@ export default function Mensagens() {
             <SelectItem value="pending">Pendente</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={route} onValueChange={setRoute}>
+        <Select value={route} onValueChange={(v) => setFilter("route", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Rota" />
           </SelectTrigger>
@@ -169,6 +245,14 @@ export default function Mensagens() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Painel resumo persistente */}
+      <FilterSummary
+        stats={summary}
+        chips={chips}
+        onClearAll={reset}
+        totalLabel={chips.length ? "Filtros ativos" : undefined}
+      />
 
       {/* Resultado: cards no mobile, tabela no md+ */}
       <div className="border border-border bg-card overflow-hidden">
