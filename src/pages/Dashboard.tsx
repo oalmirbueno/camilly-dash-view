@@ -98,24 +98,10 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Status pill */}
+          {/* Status pill (clicável p/ pausar/ativar com confirmação) */}
           {data && (
             <div className="flex flex-col items-start lg:items-end gap-3 shrink-0">
-              {data.automation_paused ? (
-                <div className="flex items-center gap-2.5 px-5 py-2.5 border border-destructive/40 bg-destructive/10">
-                  <PowerOff className="h-4 w-4 text-destructive" />
-                  <span className="text-xs font-bold text-destructive uppercase tracking-[0.2em]">
-                    Pausada
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2.5 px-5 py-2.5 border border-success/40 bg-success/10">
-                  <Power className="h-4 w-4 text-success" />
-                  <span className="text-xs font-bold text-success uppercase tracking-[0.2em]">
-                    Ativa
-                  </span>
-                </div>
-              )}
+              <AutomationToggle paused={!!data.automation_paused} />
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tracking-[0.15em] uppercase font-medium">
                 <Clock className="h-3 w-3" />
                 Sync: {fmtDateTime(data.runtime_updated_at)}
