@@ -7,15 +7,16 @@ import {
   Cpu,
   CheckCheck,
   Send,
-  CheckCircle,
   XCircle,
   MessageCircle,
   Phone,
   Power,
   PowerOff,
   Clock,
+  Sparkles,
+  Radio,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/StateViews";
@@ -68,180 +69,286 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visão geral da automação — atualiza a cada 30s
-          </p>
-        </div>
-        {data && (
-          <div className="flex items-center gap-3">
-            {data.automation_paused ? (
-              <Badge variant="destructive" className="gap-1.5">
-                <PowerOff className="h-3.5 w-3.5" /> Automação pausada
-              </Badge>
-            ) : (
-              <Badge className="bg-success text-success-foreground gap-1.5">
-                <Power className="h-3.5 w-3.5" /> Automação ativa
-              </Badge>
-            )}
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              Atualizado: {fmtDateTime(data.runtime_updated_at)}
-            </span>
+    <div className="space-y-8">
+      {/* ============ HERO HEADER ============ */}
+      <section className="relative overflow-hidden border border-border bg-card">
+        {/* Decorative accents */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+             style={{
+               backgroundImage:
+                 "radial-gradient(circle at 20% 20%, hsl(var(--gold)) 0, transparent 40%), radial-gradient(circle at 90% 80%, hsl(var(--blush)) 0, transparent 40%)",
+             }}
+        />
+        <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
+
+        <div className="relative p-6 sm:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="sparkle-dot" />
+              <p className="section-label">Painel · Visão geral</p>
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl text-foreground leading-[0.95]">
+              Operação <span className="heading-accent text-gold">em tempo real</span>
+            </h1>
+            <div className="mt-4 line-gold" />
+            <p className="body-text text-muted-foreground mt-4 max-w-xl">
+              Monitoramento ao vivo da automação Camilly — captura, processamento e
+              entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
+            </p>
           </div>
-        )}
-      </div>
+
+          {/* Status pill */}
+          {data && (
+            <div className="flex flex-col items-start lg:items-end gap-3 shrink-0">
+              {data.automation_paused ? (
+                <div className="flex items-center gap-2 px-4 py-2 border border-destructive/40 bg-destructive/10">
+                  <PowerOff className="h-4 w-4 text-destructive" />
+                  <span className="text-sm font-semibold text-destructive uppercase tracking-wider">
+                    Pausada
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2 border border-success/40 bg-success/10">
+                  <Power className="h-4 w-4 text-success" />
+                  <span className="text-sm font-semibold text-success uppercase tracking-wider">
+                    Ativa
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tracking-wider uppercase">
+                <Clock className="h-3 w-3" />
+                Sync: {fmtDateTime(data.runtime_updated_at)}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {error ? (
-        <div className="border border-border rounded-xl bg-card">
+        <div className="border border-border bg-card">
           <ErrorState error={error} source="vw_camilly_dashboard_summary" />
         </div>
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-xl" />
+            <Skeleton key={i} className="h-28" />
           ))}
         </div>
       ) : !data ? (
         <p className="text-sm text-muted-foreground">Sem dados ainda na view de resumo.</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Capturadas (24h)"
-              value={data.source_messages_24h ?? 0}
-              icon={Download}
-              variant="default"
-            />
-            <StatCard
-              title="Processadas (24h)"
-              value={data.processed_messages_24h ?? 0}
-              icon={Cpu}
-              variant="default"
-            />
-            <StatCard
-              title="Prontas p/ envio (24h)"
-              value={data.ready_messages_24h ?? 0}
-              icon={CheckCheck}
-              variant="default"
-            />
-            <StatCard
-              title="Tentativas (24h)"
-              value={data.delivery_attempts_24h ?? 0}
-              icon={Activity}
-              variant="default"
-            />
-            <StatCard
-              title="Enviadas (24h)"
-              value={data.deliveries_sent_24h ?? 0}
-              icon={Send}
-              variant="success"
-            />
-            <StatCard
-              title="Com falha (24h)"
-              value={data.deliveries_failed_24h ?? 0}
-              icon={XCircle}
-              variant={Number(data.deliveries_failed_24h) > 0 ? "destructive" : "success"}
-            />
-            <StatCard
-              title="Telegram (24h)"
-              value={data.telegram_sent_24h ?? 0}
-              icon={MessageCircle}
-              variant="default"
-            />
-            <StatCard
-              title="WhatsApp (24h)"
-              value={data.whatsapp_sent_24h ?? 0}
-              icon={Phone}
-              variant="success"
-            />
-          </div>
+          {/* ============ FLOW SECTION ============ */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="section-label mb-1">Fluxo · Últimas 24 horas</p>
+                <h2 className="font-display text-2xl text-foreground">Pipeline operacional</h2>
+              </div>
+              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border border-border shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  Última atividade
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-muted-foreground">Última captura</span>
-                    <span className="font-medium text-foreground">
-                      {fmtDateTime(data.last_source_captured_at)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-muted-foreground">Último processamento</span>
-                    <span className="font-medium text-foreground">
-                      {fmtDateTime(data.last_processed_at)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-muted-foreground">Último envio</span>
-                    <span className="font-medium text-foreground">
-                      {fmtDateTime(data.last_delivery_at)}
-                    </span>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Capturadas"
+                value={data.source_messages_24h ?? 0}
+                icon={Download}
+                hint="Mensagens recebidas"
+              />
+              <StatCard
+                title="Processadas"
+                value={data.processed_messages_24h ?? 0}
+                icon={Cpu}
+                hint="Tratadas pelo motor"
+              />
+              <StatCard
+                title="Prontas p/ envio"
+                value={data.ready_messages_24h ?? 0}
+                icon={CheckCheck}
+                hint="Aguardando rota"
+              />
+              <StatCard
+                title="Tentativas"
+                value={data.delivery_attempts_24h ?? 0}
+                icon={Activity}
+                hint="Disparos executados"
+              />
+            </div>
+          </section>
+
+          {/* ============ DELIVERY SECTION ============ */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="section-label mb-1">Entregas · Últimas 24 horas</p>
+                <h2 className="font-display text-2xl text-foreground">Resultado por canal</h2>
+              </div>
+              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Enviadas"
+                value={data.deliveries_sent_24h ?? 0}
+                icon={Send}
+                variant="success"
+                hint="Sucesso confirmado"
+              />
+              <StatCard
+                title="Com falha"
+                value={data.deliveries_failed_24h ?? 0}
+                icon={XCircle}
+                variant={Number(data.deliveries_failed_24h) > 0 ? "destructive" : "success"}
+                hint="Erro no disparo"
+              />
+              <StatCard
+                title="Telegram"
+                value={data.telegram_sent_24h ?? 0}
+                icon={MessageCircle}
+                hint="Canal Telegram"
+              />
+              <StatCard
+                title="WhatsApp"
+                value={data.whatsapp_sent_24h ?? 0}
+                icon={Phone}
+                variant="success"
+                hint="Canal WhatsApp"
+              />
+            </div>
+          </section>
+
+          {/* ============ DETAIL CARDS ============ */}
+          <section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Timeline */}
+            <Card className="lg:col-span-2 border border-border bg-card overflow-hidden">
+              <div className="px-6 pt-6 pb-4 border-b border-border">
+                <p className="section-label mb-1">Linha do tempo</p>
+                <h3 className="font-display text-xl text-foreground">Última atividade</h3>
+              </div>
+              <CardContent className="p-6">
+                <ol className="relative border-l border-border space-y-5 ml-2">
+                  <TimelineItem
+                    label="Última captura"
+                    value={fmtDateTime(data.last_source_captured_at)}
+                    icon={Download}
+                  />
+                  <TimelineItem
+                    label="Último processamento"
+                    value={fmtDateTime(data.last_processed_at)}
+                    icon={Cpu}
+                  />
+                  <TimelineItem
+                    label="Último envio"
+                    value={fmtDateTime(data.last_delivery_at)}
+                    icon={Send}
+                    accent
+                  />
+                </ol>
               </CardContent>
             </Card>
 
-            <Card className="border border-border shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <Send className="h-4 w-4 text-primary" />
-                  Última mensagem enviada
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            {/* Last message */}
+            <Card className="lg:col-span-3 border border-border bg-card overflow-hidden">
+              <div className="px-6 pt-6 pb-4 border-b border-border flex items-start justify-between gap-4">
+                <div>
+                  <p className="section-label mb-1">Última mensagem</p>
+                  <h3 className="font-display text-xl text-foreground">
+                    Conteúdo mais recente enviado
+                  </h3>
+                </div>
+                <Radio className="h-5 w-5 text-gold shrink-0 mt-1" />
+              </div>
+              <CardContent className="p-6">
                 {data.last_delivery_at ? (
-                  <div className="space-y-3 text-sm">
+                  <div className="space-y-4 text-sm">
                     <div className="flex flex-wrap items-center gap-2">
                       {data.last_delivery_status === "sent" ? (
-                        <Badge className="bg-success text-success-foreground">Enviada</Badge>
+                        <Badge className="bg-success text-success-foreground rounded-none">
+                          Enviada
+                        </Badge>
                       ) : data.last_delivery_status === "failed" ? (
-                        <Badge variant="destructive">Falha</Badge>
+                        <Badge variant="destructive" className="rounded-none">Falha</Badge>
                       ) : (
-                        <Badge variant="secondary">{data.last_delivery_status ?? "—"}</Badge>
+                        <Badge variant="secondary" className="rounded-none">
+                          {data.last_delivery_status ?? "—"}
+                        </Badge>
                       )}
-                      <Badge variant="outline">{channelLabel(data.last_destination_platform)}</Badge>
+                      <Badge variant="outline" className="rounded-none">
+                        {channelLabel(data.last_destination_platform)}
+                      </Badge>
                       {data.last_route_name && (
-                        <Badge variant="secondary">{data.last_route_name}</Badge>
+                        <Badge variant="secondary" className="rounded-none">
+                          {data.last_route_name}
+                        </Badge>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>
-                        Destino:{" "}
-                        <span className="text-foreground font-medium">
-                          {data.last_destination_name ?? "—"}
-                        </span>
-                      </div>
-                      <div>Horário: {fmtDateTime(data.last_delivery_sent_at)}</div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <DetailRow label="Destino" value={data.last_destination_name ?? "—"} />
+                      <DetailRow label="Horário" value={fmtDateTime(data.last_delivery_sent_at)} />
                       {data.last_external_delivery_id && (
-                        <div>
-                          ID externo:{" "}
-                          <code className="font-mono">{data.last_external_delivery_id}</code>
-                        </div>
+                        <DetailRow
+                          label="ID externo"
+                          value={data.last_external_delivery_id}
+                          mono
+                        />
                       )}
                     </div>
-                    <div className="rounded-lg bg-muted/40 border border-border p-3 text-sm text-foreground whitespace-pre-wrap">
-                      {data.last_message_text ?? "—"}
+
+                    <div className="relative border border-border bg-background/60 p-4">
+                      <Sparkles className="absolute -top-2 -left-2 h-4 w-4 text-gold bg-card p-0.5" />
+                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                        {data.last_message_text ?? "—"}
+                      </p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Nenhum envio registrado ainda.</p>
+                  <p className="text-sm text-muted-foreground italic">
+                    Nenhum envio registrado ainda.
+                  </p>
                 )}
               </CardContent>
             </Card>
-          </div>
+          </section>
         </>
       )}
+    </div>
+  );
+}
+
+function TimelineItem({
+  label,
+  value,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string;
+  icon: typeof Download;
+  accent?: boolean;
+}) {
+  return (
+    <li className="ml-4">
+      <span
+        className={`absolute -left-[9px] flex h-4 w-4 items-center justify-center ${
+          accent ? "bg-foreground text-background" : "bg-card border border-border text-muted-foreground"
+        }`}
+      >
+        <Icon className="h-2.5 w-2.5" />
+      </span>
+      <p className="section-label text-[9px] mb-1">{label}</p>
+      <p className="text-sm font-medium text-foreground">{value}</p>
+    </li>
+  );
+}
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="border border-border bg-background/40 px-3 py-2">
+      <p className="section-label text-[9px] mb-1">{label}</p>
+      <p className={`text-foreground text-xs ${mono ? "font-mono break-all" : "font-medium"}`}>
+        {value}
+      </p>
     </div>
   );
 }
