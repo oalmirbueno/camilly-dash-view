@@ -559,6 +559,14 @@ export default function Links() {
         saving={upsertMutation.isPending}
       />
 
+      {/* Diálogo simples para criar um link novo */}
+      <SimpleNewLinkDialog
+        open={simpleCreating}
+        onClose={() => setSimpleCreating(false)}
+        onSave={(p) => upsertMutation.mutate(p)}
+        saving={upsertMutation.isPending}
+      />
+
       {/* Diálogo avançado original */}
       <EditLinkDialog
         link={editing ?? (creating ? ({} as Link) : null)}
