@@ -356,7 +356,7 @@ function EditTemplateDialog({
     <Dialog open={!!template} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar template</DialogTitle>
+          <DialogTitle>Editar mensagem</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -366,65 +366,18 @@ function EditTemplateDialog({
               onChange={(e) => setForm({ ...form, template_name: e.target.value })}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Canal</Label>
-              <Select
-                value={form.channel_scope ?? "all"}
-                onValueChange={(v) => setForm({ ...form, channel_scope: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CHANNELS.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Categoria</Label>
-              <Select
-                value={form.category ?? "general"}
-                onValueChange={(v) => setForm({ ...form, category: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           <div>
-            <Label>Corpo do template</Label>
+            <Label>Texto da mensagem</Label>
             <Textarea
-              rows={8}
+              rows={10}
               value={form.body_template ?? ""}
               onChange={(e) => setForm({ ...form, body_template: e.target.value })}
-              className="font-mono text-sm"
+              className="text-sm"
+              placeholder="Escreva a mensagem que será enviada..."
             />
-          </div>
-          <div>
-            <Label>Variáveis esperadas (JSON)</Label>
-            <Textarea
-              rows={5}
-              value={varsText}
-              onChange={(e) => setVarsText(e.target.value)}
-              className="font-mono text-xs"
-              placeholder='{"campo": "descrição"}'
-            />
-            {varsError && (
-              <p className="text-xs text-destructive mt-1">{varsError}</p>
-            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Trechos entre chaves como {"{nome}"} são preenchidos automaticamente.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Switch
@@ -433,6 +386,70 @@ function EditTemplateDialog({
             />
             <Label>Ativo</Label>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setAdvanced((v) => !v)}
+            className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+          >
+            {advanced ? "Ocultar opções avançadas" : "Mostrar opções avançadas"}
+          </button>
+
+          {advanced && (
+            <div className="space-y-4 border-t border-border pt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Canal</Label>
+                  <Select
+                    value={form.channel_scope ?? "all"}
+                    onValueChange={(v) => setForm({ ...form, channel_scope: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CHANNELS.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Categoria</Label>
+                  <Select
+                    value={form.category ?? "general"}
+                    onValueChange={(v) => setForm({ ...form, category: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Variáveis esperadas (JSON)</Label>
+                <Textarea
+                  rows={5}
+                  value={varsText}
+                  onChange={(e) => setVarsText(e.target.value)}
+                  className="font-mono text-xs"
+                  placeholder='{"campo": "descrição"}'
+                />
+                {varsError && (
+                  <p className="text-xs text-destructive mt-1">{varsError}</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
