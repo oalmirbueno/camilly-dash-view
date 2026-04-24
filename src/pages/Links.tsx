@@ -239,6 +239,7 @@ export default function Links() {
       setEditing(null);
       setQuickEditing(null);
       setCreating(false);
+      setSimpleCreating(false);
     },
     onError: (e: any) => {
       toast({
