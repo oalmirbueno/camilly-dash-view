@@ -314,10 +314,9 @@ export default function Mensagens() {
                   {r.delivery_status === "failed" && (
                     <div className="pt-1">
                       <FutureActionButton
-                        label="Reprocessar"
+                        label="Tentar enviar de novo"
                         icon={RotateCw}
-                        description="Vai recolocar este envio na fila para uma nova tentativa de entrega no mesmo destino."
-                        hint="Aguardando RPC de reenvio."
+                        description="Quando estiver pronto, este botão tenta enviar essa mensagem mais uma vez, para o mesmo destino."
                       />
                     </div>
                   )}
@@ -375,11 +374,10 @@ export default function Mensagens() {
                       <TableCell className="text-right">
                         {r.delivery_status === "failed" && (
                           <FutureActionButton
-                            label="Reprocessar"
+                            label="Tentar enviar de novo"
                             icon={RotateCw}
                             iconOnly
-                            description="Vai recolocar este envio na fila para uma nova tentativa de entrega no mesmo destino."
-                            hint="Aguardando RPC de reenvio."
+                            description="Quando estiver pronto, este botão tenta enviar essa mensagem mais uma vez, para o mesmo destino."
                           />
                         )}
                       </TableCell>

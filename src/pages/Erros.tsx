@@ -83,6 +83,15 @@ export default function Erros() {
                   <p className="text-[13.5px] leading-relaxed text-foreground break-words">
                     {err.error_message ?? "—"}
                   </p>
+                  {!err.resolved && (
+                    <div className="pt-1">
+                      <FutureActionButton
+                        label="Marcar como resolvido"
+                        icon={CheckCircle2}
+                        description="Quando estiver pronto, este botão tira o erro da lista de pendências, mostrando que ele já foi tratado."
+                      />
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
@@ -123,8 +132,7 @@ export default function Erros() {
                           <FutureActionButton
                             label="Marcar como resolvido"
                             icon={CheckCircle2}
-                            description="Vai marcar este erro como resolvido no log e removê-lo da fila de pendências."
-                            hint="Aguardando endpoint de gravação."
+                            description="Quando estiver pronto, este botão tira o erro da lista de pendências, mostrando que ele já foi tratado."
                           />
                         )}
                       </TableCell>
