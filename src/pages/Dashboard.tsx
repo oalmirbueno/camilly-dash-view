@@ -10,8 +10,6 @@ import {
   XCircle,
   MessageCircle,
   Phone,
-  Power,
-  PowerOff,
   Clock,
   Sparkles,
   Radio,
