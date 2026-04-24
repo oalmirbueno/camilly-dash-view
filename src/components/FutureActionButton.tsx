@@ -1,44 +1,36 @@
 import { type ComponentType, type ReactNode } from "react";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuth } from "@/hooks/use-auth";
-
-type Size = "sm" | "icon" | "default";
 
 type Props = {
   /** Short button label (icon-only buttons use this as aria-label) */
   label: string;
   /** Optional leading icon */
   icon?: ComponentType<{ className?: string }>;
-  /** What this action will do once available */
+  /** Plain-language explanation: what this button will do once available */
   description: ReactNode;
-  /** Optional ETA / status hint shown on second line */
-  hint?: ReactNode;
-  size?: Size;
   iconOnly?: boolean;
   className?: string;
 };
 
 /**
- * Renders a permanently-disabled button with a tooltip explaining
- * the future action. Communicates planned functionality without
- * inventing backend behaviour.
+ * "Em breve" button — clearly marked as not-yet-available.
  *
- * - Authenticated user: tooltip explains what the action *will* do.
- * - Unauthenticated user: tooltip prompts sign-in (action is gated anyway).
+ * - Always disabled, but clickable (via wrapping span) so non-technical
+ *   users get a friendly popover explaining what it does.
+ * - Works on touch (popover on tap) and mouse (popover on click).
+ * - "Em breve" tag is always visible, no need to hover to discover it.
  */
 export function FutureActionButton({
   label,
   icon: Icon,
   description,
-  hint,
-  size = "sm",
   iconOnly = false,
   className,
 }: Props) {
@@ -46,50 +38,48 @@ export function FutureActionButton({
   const isAuthed = !!user;
 
   return (
-    <TooltipProvider delayDuration={120}>
-      <Tooltip>
-        {/* The trigger wraps a span because disabled buttons don't fire pointer events */}
-        <TooltipTrigger asChild>
-          <span className="inline-flex">
-            <Button
-              type="button"
-              variant="outline"
-              size={size}
-              disabled
-              aria-disabled="true"
-              aria-label={iconOnly ? label : undefined}
-              className={`rounded-none gap-1.5 text-[11px] uppercase tracking-wider font-medium opacity-70 cursor-not-allowed ${className ?? ""}`}
-            >
-              {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
-              {!iconOnly && <span>{label}</span>}
-            </Button>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          aria-label={iconOnly ? `${label} (em breve)` : undefined}
+          className={`rounded-none gap-1.5 h-8 text-xs font-medium border-dashed text-muted-foreground hover:text-foreground hover:border-border ${className ?? ""}`}
+        >
+          {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
+          {!iconOnly && <span>{label}</span>}
+          <span
+            aria-hidden
+            className="ml-1 px-1.5 py-px text-[9px] uppercase tracking-wider bg-muted text-muted-foreground/90 font-semibold leading-none flex items-center"
+          >
+            Em breve
           </span>
-        </TooltipTrigger>
-        <TooltipContent side="top" align="end" className="max-w-[260px] p-3">
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-foreground">
-                {label} · em breve
-              </p>
-              <p className="text-xs leading-snug text-muted-foreground">
-                {description}
-              </p>
-              {hint && (
-                <p className="text-[10.5px] text-muted-foreground/80 italic">
-                  {hint}
-                </p>
-              )}
-              {!isAuthed && (
-                <p className="text-[10.5px] text-warning flex items-center gap-1 pt-0.5">
-                  <Lock className="h-3 w-3" />
-                  Requer login
-                </p>
-              )}
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="top"
+        align="end"
+        className="w-64 p-3 rounded-none border-border"
+      >
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-foreground leading-tight">
+            {label}
+          </p>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+          <p className="text-[11px] text-muted-foreground/80 pt-1 border-t border-border">
+            Este botão ainda não está pronto. Quando ficar, ele funciona aqui mesmo, sem instalar nada.
+          </p>
+          {!isAuthed && (
+            <p className="text-[11px] text-warning flex items-center gap-1.5 pt-1">
+              <Lock className="h-3 w-3" />
+              Você precisa entrar para usar.
+            </p>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
