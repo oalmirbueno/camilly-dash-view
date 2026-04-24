@@ -81,17 +81,17 @@ export default function Dashboard() {
         />
         <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
 
-        <div className="relative p-6 sm:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-3">
+        <div className="relative p-6 sm:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+          <div className="min-w-0 max-w-2xl">
+            <div className="flex items-center gap-2 mb-4">
               <span className="sparkle-dot" />
               <p className="section-label">Painel · Visão geral</p>
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl text-foreground leading-[0.95]">
+            <h1 className="font-display text-[2.5rem] sm:text-[3.25rem] text-foreground leading-[1] tracking-tight">
               Operação <span className="heading-accent text-gold">em tempo real</span>
             </h1>
-            <div className="mt-4 line-gold" />
-            <p className="body-text text-muted-foreground mt-4 max-w-xl">
+            <div className="mt-5 line-gold" />
+            <p className="body-text mt-5">
               Monitoramento ao vivo da automação Camilly — captura, processamento e
               entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
             </p>
@@ -101,21 +101,21 @@ export default function Dashboard() {
           {data && (
             <div className="flex flex-col items-start lg:items-end gap-3 shrink-0">
               {data.automation_paused ? (
-                <div className="flex items-center gap-2 px-4 py-2 border border-destructive/40 bg-destructive/10">
+                <div className="flex items-center gap-2.5 px-5 py-2.5 border border-destructive/40 bg-destructive/10">
                   <PowerOff className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-semibold text-destructive uppercase tracking-wider">
+                  <span className="text-xs font-bold text-destructive uppercase tracking-[0.2em]">
                     Pausada
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-4 py-2 border border-success/40 bg-success/10">
+                <div className="flex items-center gap-2.5 px-5 py-2.5 border border-success/40 bg-success/10">
                   <Power className="h-4 w-4 text-success" />
-                  <span className="text-sm font-semibold text-success uppercase tracking-wider">
+                  <span className="text-xs font-bold text-success uppercase tracking-[0.2em]">
                     Ativa
                   </span>
                 </div>
               )}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tracking-wider uppercase">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground tracking-[0.15em] uppercase font-medium">
                 <Clock className="h-3 w-3" />
                 Sync: {fmtDateTime(data.runtime_updated_at)}
               </div>
@@ -140,12 +140,16 @@ export default function Dashboard() {
         <>
           {/* ============ FLOW SECTION ============ */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
               <div>
-                <p className="section-label mb-1">Fluxo · Últimas 24 horas</p>
-                <h2 className="font-display text-2xl text-foreground">Pipeline operacional</h2>
+                <p className="section-label mb-2">Fluxo · Últimas 24 horas</p>
+                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+                  Pipeline operacional
+                </h2>
               </div>
-              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+                4 etapas
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -178,12 +182,16 @@ export default function Dashboard() {
 
           {/* ============ DELIVERY SECTION ============ */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
               <div>
-                <p className="section-label mb-1">Entregas · Últimas 24 horas</p>
-                <h2 className="font-display text-2xl text-foreground">Resultado por canal</h2>
+                <p className="section-label mb-2">Entregas · Últimas 24 horas</p>
+                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+                  Resultado por canal
+                </h2>
               </div>
-              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+                Telegram · WhatsApp
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
