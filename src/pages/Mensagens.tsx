@@ -18,7 +18,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, RotateCw } from "lucide-react";
+import { FutureActionButton } from "@/components/FutureActionButton";
 import { ErrorState, LoadingRows, EmptyState } from "@/components/StateViews";
 import { usePersistentFilters } from "@/hooks/usePersistentFilters";
 import { FilterSummary, type ActiveChip, type SummaryStat } from "@/components/FilterSummary";
@@ -309,6 +310,17 @@ export default function Mensagens() {
                       </div>
                     )}
                   </dl>
+
+                  {r.delivery_status === "failed" && (
+                    <div className="pt-1">
+                      <FutureActionButton
+                        label="Reprocessar"
+                        icon={RotateCw}
+                        description="Vai recolocar este envio na fila para uma nova tentativa de entrega no mesmo destino."
+                        hint="Aguardando RPC de reenvio."
+                      />
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
@@ -328,6 +340,7 @@ export default function Mensagens() {
                     <TableHead>Origem</TableHead>
                     <TableHead>ID externo</TableHead>
                     <TableHead>UID</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -358,6 +371,17 @@ export default function Mensagens() {
                       </TableCell>
                       <TableCell className="text-xs font-mono text-muted-foreground max-w-[180px] truncate">
                         {r.message_uid ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {r.delivery_status === "failed" && (
+                          <FutureActionButton
+                            label="Reprocessar"
+                            icon={RotateCw}
+                            iconOnly
+                            description="Vai recolocar este envio na fila para uma nova tentativa de entrega no mesmo destino."
+                            hint="Aguardando RPC de reenvio."
+                          />
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

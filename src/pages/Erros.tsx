@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle2 } from "lucide-react";
+import { FutureActionButton } from "@/components/FutureActionButton";
 
 export default function Erros() {
   const { data: errors, isLoading } = useQuery({
@@ -95,6 +97,7 @@ export default function Erros() {
                     <TableHead>Severidade</TableHead>
                     <TableHead>Mensagem</TableHead>
                     <TableHead>Resolvido</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -113,6 +116,16 @@ export default function Erros() {
                           <span className="text-success font-medium text-sm">Sim</span>
                         ) : (
                           <span className="text-destructive font-medium text-sm">Não</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {!err.resolved && (
+                          <FutureActionButton
+                            label="Marcar como resolvido"
+                            icon={CheckCircle2}
+                            description="Vai marcar este erro como resolvido no log e removê-lo da fila de pendências."
+                            hint="Aguardando endpoint de gravação."
+                          />
                         )}
                       </TableCell>
                     </TableRow>
