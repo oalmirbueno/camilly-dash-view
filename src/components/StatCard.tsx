@@ -26,21 +26,23 @@ const dotByVariant: Record<NonNullable<StatCardProps["variant"]>, string> = {
 
 export function StatCard({ title, value, icon: Icon, variant = "default", hint }: StatCardProps) {
   return (
-    <Card className="card-lift relative overflow-hidden border border-border bg-card p-5 group">
+    <Card className="card-lift relative overflow-hidden border border-border bg-card p-4 sm:p-5 group">
       {/* Top accent bar */}
       <div className={cn("absolute top-0 left-0 h-[2px] w-10", dotByVariant[variant])} />
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="section-label text-[10px] mb-3 truncate">{title}</p>
-          <p className={cn("stat-number text-[2rem] sm:text-[2.25rem] leading-none", accentByVariant[variant])}>
+          <p className="section-label mb-2 sm:mb-3 truncate">{title}</p>
+          <p className={cn("stat-number", accentByVariant[variant])}>
             {value}
           </p>
           {hint && (
-            <p className="text-xs text-muted-foreground mt-2.5 font-medium">{hint}</p>
+            <p className="text-[11.5px] sm:text-xs text-muted-foreground mt-2 sm:mt-2.5 font-medium leading-snug">
+              {hint}
+            </p>
           )}
         </div>
-        <div className="shrink-0 h-10 w-10 flex items-center justify-center border border-border bg-background/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground/30 transition-colors">
+        <div className="shrink-0 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center border border-border bg-background/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground/30 transition-colors">
           <Icon className="h-4 w-4" />
         </div>
       </div>
