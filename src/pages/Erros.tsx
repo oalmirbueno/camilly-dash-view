@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle2 } from "lucide-react";
+import { FutureActionButton } from "@/components/FutureActionButton";
 
 export default function Erros() {
   const { data: errors, isLoading } = useQuery({
