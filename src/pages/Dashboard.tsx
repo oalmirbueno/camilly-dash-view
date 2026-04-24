@@ -44,10 +44,10 @@ type Summary = {
 };
 
 const fmtDateTime = (v: string | null) =>
-  v ? new Date(v).toLocaleString("pt-BR") : "—";
+  v ? new Date(v).toLocaleString("pt-BR") : "";
 
 const channelLabel = (p: string | null) => {
-  if (!p) return "—";
+  if (!p) return "";
   if (p === "telegram") return "Telegram";
   if (p === "whatsapp") return "WhatsApp";
   return p;
@@ -263,7 +263,7 @@ export default function Dashboard() {
                         <Badge variant="destructive" className="rounded-none">Falha</Badge>
                       ) : (
                         <Badge variant="secondary" className="rounded-none">
-                          {data.last_delivery_status ?? "—"}
+                          {data.last_delivery_status ?? ""}
                         </Badge>
                       )}
                       <Badge variant="outline" className="rounded-none">
@@ -277,7 +277,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <DetailRow label="Destino" value={data.last_destination_name ?? "—"} />
+                      <DetailRow label="Destino" value={data.last_destination_name ?? ""} />
                       <DetailRow label="Horário" value={fmtDateTime(data.last_delivery_sent_at)} />
                       {data.last_external_delivery_id && (
                         <DetailRow
@@ -291,7 +291,7 @@ export default function Dashboard() {
                     <div className="relative border border-border bg-background/60 p-4">
                       <Sparkles className="absolute -top-2 -left-2 h-4 w-4 text-gold bg-card p-0.5" />
                       <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                        {data.last_message_text ?? "—"}
+                        {data.last_message_text ?? ""}
                       </p>
                     </div>
                   </div>

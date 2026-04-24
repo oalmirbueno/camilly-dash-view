@@ -26,10 +26,10 @@ type RouteRow = {
   failed_24h: number | null;
 };
 
-const fmt = (v: string | null) => (v ? new Date(v).toLocaleString("pt-BR") : "—");
+const fmt = (v: string | null) => (v ? new Date(v).toLocaleString("pt-BR") : "");
 
 const channelLabel = (p: string | null) => {
-  if (!p) return "—";
+  if (!p) return "";
   if (p === "telegram") return "Telegram";
   if (p === "whatsapp") return "WhatsApp";
   return p;
@@ -80,10 +80,10 @@ export default function Rotas() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="font-display text-base text-foreground leading-tight truncate">
-                        {r.route_name ?? "—"}
+                        {r.route_name ?? ""}
                       </h3>
                       <p className="text-[11px] text-muted-foreground mt-0.5 tracking-wider uppercase">
-                        {channelLabel(r.destination_platform)} · {r.destination_name ?? "—"}
+                        {channelLabel(r.destination_platform)} · {r.destination_name ?? ""}
                       </p>
                     </div>
                     {r.active ? (
@@ -149,7 +149,7 @@ export default function Rotas() {
                   {data.map((r) => (
                     <TableRow key={r.route_id}>
                       <TableCell className="font-medium text-sm">
-                        {r.route_name ?? "—"}
+                        {r.route_name ?? ""}
                       </TableCell>
                       <TableCell>
                         {r.active ? (
@@ -161,9 +161,9 @@ export default function Rotas() {
                       <TableCell>
                         <Badge variant="outline" className="rounded-none">{channelLabel(r.destination_platform)}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm">{r.destination_name ?? "—"}</TableCell>
+                      <TableCell className="text-sm">{r.destination_name ?? ""}</TableCell>
                       <TableCell className="text-xs font-mono text-muted-foreground">
-                        {r.destination_identifier ?? "—"}
+                        {r.destination_identifier ?? ""}
                       </TableCell>
                       <TableCell className="text-right text-sm tabular-nums">
                         {r.attempts_24h ?? 0}
