@@ -32,15 +32,15 @@ export function StatCard({ title, value, icon: Icon, variant = "default", hint }
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="section-label text-[9px] mb-3 truncate">{title}</p>
-          <p className={cn("stat-number text-3xl leading-none", accentByVariant[variant])}>
+          <p className="section-label text-[10px] mb-3 truncate">{title}</p>
+          <p className={cn("stat-number text-[2rem] sm:text-[2.25rem] leading-none", accentByVariant[variant])}>
             {value}
           </p>
           {hint && (
-            <p className="text-[11px] text-muted-foreground mt-2 tracking-wide">{hint}</p>
+            <p className="text-xs text-muted-foreground mt-2.5 font-medium">{hint}</p>
           )}
         </div>
-        <div className="shrink-0 h-9 w-9 flex items-center justify-center border border-border bg-background/60 text-muted-foreground group-hover:text-foreground transition-colors">
+        <div className="shrink-0 h-10 w-10 flex items-center justify-center border border-border bg-background/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground/30 transition-colors">
           <Icon className="h-4 w-4" />
         </div>
       </div>
