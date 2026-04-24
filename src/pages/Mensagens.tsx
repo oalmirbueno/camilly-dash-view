@@ -206,11 +206,11 @@ export default function Mensagens() {
           <Input
             placeholder="Buscar por texto, destino, rota ou ID…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setFilter("q", e.target.value)}
             className="pl-9 rounded-none h-10"
           />
         </div>
-        <Select value={platform} onValueChange={setPlatform}>
+        <Select value={platform} onValueChange={(v) => setFilter("platform", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Plataforma" />
           </SelectTrigger>
@@ -220,7 +220,7 @@ export default function Mensagens() {
             <SelectItem value="whatsapp">WhatsApp</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={(v) => setFilter("status", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -231,7 +231,7 @@ export default function Mensagens() {
             <SelectItem value="pending">Pendente</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={route} onValueChange={setRoute}>
+        <Select value={route} onValueChange={(v) => setFilter("route", v)}>
           <SelectTrigger className="rounded-none h-10">
             <SelectValue placeholder="Rota" />
           </SelectTrigger>
@@ -245,6 +245,14 @@ export default function Mensagens() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Painel resumo persistente */}
+      <FilterSummary
+        stats={summary}
+        chips={chips}
+        onClearAll={reset}
+        totalLabel={chips.length ? "Filtros ativos" : undefined}
+      />
 
       {/* Resultado: cards no mobile, tabela no md+ */}
       <div className="border border-border bg-card overflow-hidden">
