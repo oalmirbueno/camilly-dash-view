@@ -80,19 +80,19 @@ export default function Dashboard() {
         />
         <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
 
-        <div className="relative p-6 sm:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+        <div className="relative p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 lg:gap-8">
           <div className="min-w-0 max-w-2xl">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <span className="sparkle-dot" />
               <p className="section-label">Painel · Visão geral</p>
             </div>
-            <h1 className="font-display text-[2.5rem] sm:text-[3.25rem] text-foreground leading-[1] tracking-tight">
+            <h1 className="font-display text-foreground leading-[1.05]">
               Operação <span className="heading-accent text-gold">em tempo real</span>
             </h1>
-            <div className="mt-5 line-gold" />
-            <p className="body-text mt-5">
-              Monitoramento ao vivo da automação Camilly — captura, processamento e
-              entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
+            <div className="mt-4 sm:mt-5 line-gold" />
+            <p className="body-text mt-4 sm:mt-5">
+              Monitoramento ao vivo da automação Camilly — captura, processamento
+              e entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
             </p>
           </div>
 
