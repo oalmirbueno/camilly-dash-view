@@ -46,13 +46,13 @@ type DeliveryRow = {
 const statusBadge = (status: string | null) => {
   switch (status) {
     case "sent":
-      return <Badge className="bg-success text-success-foreground">Enviada</Badge>;
+      return <Badge className="bg-success text-success-foreground rounded-none">Enviada</Badge>;
     case "failed":
-      return <Badge variant="destructive">Falha</Badge>;
+      return <Badge variant="destructive" className="rounded-none">Falha</Badge>;
     case "pending":
-      return <Badge className="bg-warning text-warning-foreground">Pendente</Badge>;
+      return <Badge className="bg-warning text-warning-foreground rounded-none">Pendente</Badge>;
     default:
-      return <Badge variant="secondary">{status ?? "—"}</Badge>;
+      return <Badge variant="secondary" className="rounded-none">{status ?? "—"}</Badge>;
   }
 };
 
