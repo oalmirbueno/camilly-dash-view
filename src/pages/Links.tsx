@@ -21,6 +21,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/table";
 import { LoadingRows, EmptyState, ErrorState } from "@/components/StateViews";
 import { toast } from "@/hooks/use-toast";
-import { Pencil, ExternalLink, Lock, LogIn } from "lucide-react";
+import { Pencil, ExternalLink, Lock, LogIn, Settings2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -53,6 +54,17 @@ type Link = {
 };
 
 const LINK_TYPES = ["fixed", "daily", "recent", "rtp", "platform"] as const;
+
+// Linguagem leiga para os tipos de link
+const TYPE_LABELS: Record<string, string> = {
+  fixed: "Permanente",
+  daily: "Do dia",
+  recent: "Novidade",
+  rtp: "RTP",
+  platform: "Plataforma",
+};
+const typeLabel = (t: string | null | undefined) =>
+  t ? TYPE_LABELS[t] ?? t : "";
 
 function fmtDate(s: string | null) {
   if (!s) return "";
@@ -115,6 +127,10 @@ export default function Links() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const canEdit = !!user;
+
+  // Modo simples é o padrão. O avançado preserva tudo que já existia.
+  const [advanced, setAdvanced] = useState(false);
+
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -122,6 +138,7 @@ export default function Links() {
     "all" | "valid_now" | "expired" | "today"
   >("all");
   const [editing, setEditing] = useState<Link | null>(null);
+  const [quickEditing, setQuickEditing] = useState<Link | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data, isLoading, error } = useQuery({
@@ -168,11 +185,12 @@ export default function Links() {
         l.short_label?.toLowerCase().includes(q) ||
         l.platform_name?.toLowerCase().includes(q) ||
         l.campaign_name?.toLowerCase().includes(q) ||
-        l.destination_url?.toLowerCase().includes(q)
+        l.destination_url?.toLowerCase().includes(q) ||
+        typeLabel(l.link_type).toLowerCase().includes(q)
       );
     });
 
-    // Order: active_now/fixed first, then by updated_at desc
+    // Ordena: ativos agora / fixos primeiro, depois por updated_at desc
     return list.sort((a, b) => {
       const sa = getStatus(a, now);
       const sb = getStatus(b, now);
@@ -218,6 +236,7 @@ export default function Links() {
       toast({ title: "Link salvo" });
       qc.invalidateQueries({ queryKey: ["affiliate_links"] });
       setEditing(null);
+      setQuickEditing(null);
       setCreating(false);
     },
     onError: (e: any) => {
@@ -239,23 +258,38 @@ export default function Links() {
           </div>
           <h1 className="font-display text-foreground">Links de afiliado</h1>
           <p className="body-text max-w-xl">
-            Links reais que o motor distribui. O painel reflete sempre o estado
-            atual da tabela.
+            Troque o link que está sendo divulgado. Clique em
+            <span className="font-medium"> Alterar </span>
+            para colar uma nova URL.
           </p>
           <div className="line-gold mt-1" />
         </div>
-        <Button
-          onClick={() => setCreating(true)}
-          disabled={!canEdit}
-          className="rounded-none uppercase tracking-wider text-[11px] h-10 self-start sm:self-auto shrink-0"
-        >
-          {canEdit ? "Novo link" : (
-            <>
-              <Lock className="h-4 w-4 mr-1.5" />
-              Novo link
-            </>
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setAdvanced((v) => !v)}
+            className="rounded-none uppercase tracking-wider text-[11px] h-10"
+            title="Mostrar opções avançadas (datas, JSON, tipo bruto)"
+          >
+            <Settings2 className="h-4 w-4 mr-1.5" />
+            {advanced ? "Modo simples" : "Modo avançado"}
+          </Button>
+          {advanced && (
+            <Button
+              onClick={() => setCreating(true)}
+              disabled={!canEdit}
+              className="rounded-none uppercase tracking-wider text-[11px] h-10"
+            >
+              {canEdit ? "Novo link" : (
+                <>
+                  <Lock className="h-4 w-4 mr-1.5" />
+                  Novo link
+                </>
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </header>
 
       {!canEdit && (
@@ -263,7 +297,7 @@ export default function Links() {
           <div className="flex items-center gap-2 text-sm">
             <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>
-              Visualização liberada. Faça login para criar ou editar links.
+              Visualização liberada. Faça login para alterar links.
             </span>
           </div>
           <Button asChild size="sm" variant="outline" className="rounded-none uppercase tracking-wider text-[11px] self-start sm:self-auto">
@@ -275,94 +309,109 @@ export default function Links() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="rounded-none border-border">
-          <CardContent className="pt-4 pb-4">
-            <p className="section-label text-[9.5px] mb-2">Ativos agora</p>
-            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.active_now}</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-none border-border">
-          <CardContent className="pt-4 pb-4">
-            <p className="section-label text-[9.5px] mb-2">Fixos</p>
-            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.fixed}</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-none border-border">
-          <CardContent className="pt-4 pb-4">
-            <p className="section-label text-[9.5px] mb-2">Agendados</p>
-            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.scheduled}</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-none border-border">
-          <CardContent className="pt-4 pb-4">
-            <p className="section-label text-[9.5px] mb-2">Vencidos</p>
-            <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.expired}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {advanced && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card className="rounded-none border-border">
+            <CardContent className="pt-4 pb-4">
+              <p className="section-label text-[9.5px] mb-2">Ativos agora</p>
+              <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.active_now}</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-none border-border">
+            <CardContent className="pt-4 pb-4">
+              <p className="section-label text-[9.5px] mb-2">Fixos</p>
+              <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.fixed}</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-none border-border">
+            <CardContent className="pt-4 pb-4">
+              <p className="section-label text-[9.5px] mb-2">Agendados</p>
+              <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.scheduled}</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-none border-border">
+            <CardContent className="pt-4 pb-4">
+              <p className="section-label text-[9.5px] mb-2">Vencidos</p>
+              <p className="stat-number text-[1.5rem] sm:text-[1.75rem]">{counts.expired}</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
+      {/* Busca: simples no modo simples, completa no avançado */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filtros</CardTitle>
+          <CardTitle className="text-base">
+            {advanced ? "Filtros" : "Buscar"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          {advanced ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <Input
+                placeholder="Buscar por rótulo, plataforma, campanha ou URL"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Select value={activeFilter} onValueChange={(v: any) => setActiveFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  <SelectItem value="active">Ativos</SelectItem>
+                  <SelectItem value="inactive">Inativos</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  {LINK_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {typeLabel(t)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={validityFilter} onValueChange={(v: any) => setValidityFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toda validade</SelectItem>
+                  <SelectItem value="valid_now">Válidos agora</SelectItem>
+                  <SelectItem value="today">Do dia</SelectItem>
+                  <SelectItem value="expired">Vencidos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
             <Input
-              placeholder="Buscar por rótulo, plataforma, campanha ou URL"
+              placeholder="Buscar por nome do link"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Select value={activeFilter} onValueChange={(v: any) => setActiveFilter(v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="inactive">Inativos</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                {LINK_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={validityFilter} onValueChange={(v: any) => setValidityFilter(v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toda validade</SelectItem>
-                <SelectItem value="valid_now">Válidos agora</SelectItem>
-                <SelectItem value="today">Do dia</SelectItem>
-                <SelectItem value="expired">Vencidos</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Links ({filtered.length})</CardTitle>
+          <CardTitle className="text-base">
+            Links ({filtered.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className={advanced ? "p-0" : "p-0"}>
           {isLoading ? (
             <LoadingRows />
           ) : error ? (
             <ErrorState error={error} source="affiliate_links" />
           ) : filtered.length === 0 ? (
             <EmptyState message="Nenhum link encontrado" />
-          ) : (
+          ) : advanced ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -385,7 +434,7 @@ export default function Links() {
                     </TableCell>
                     <TableCell className="font-medium">{l.short_label ?? ""}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{l.link_type ?? ""}</Badge>
+                      <Badge variant="outline">{typeLabel(l.link_type)}</Badge>
                     </TableCell>
                     <TableCell>{l.platform_name ?? ""}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -396,7 +445,7 @@ export default function Links() {
                         "Sem expiração"
                       ) : (
                         <>
-                          {fmtDateOnly(l.valid_from)} → {fmtDateOnly(l.valid_until)}
+                          {fmtDateOnly(l.valid_from)} {fmtDateOnly(l.valid_until) ? "→ " + fmtDateOnly(l.valid_until) : ""}
                         </>
                       )}
                     </TableCell>
@@ -424,7 +473,7 @@ export default function Links() {
                         size="icon"
                         onClick={() => setEditing(l)}
                         disabled={!canEdit}
-                        title={canEdit ? "Editar" : "Faça login para editar"}
+                        title={canEdit ? "Editar (modo avançado)" : "Faça login para editar"}
                       >
                         {canEdit ? (
                           <Pencil className="h-4 w-4" />
@@ -437,10 +486,64 @@ export default function Links() {
                 ))}
               </TableBody>
             </Table>
+          ) : (
+            <ul className="divide-y divide-border">
+              {filtered.map((l) => (
+                <li
+                  key={l.id}
+                  className="flex items-center gap-3 px-4 py-3 sm:px-6 sm:py-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium truncate">
+                        {l.short_label || l.platform_name || "(sem nome)"}
+                      </span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {typeLabel(l.link_type) || "Link"}
+                      </Badge>
+                      {!l.active && (
+                        <Badge variant="outline" className="text-[10px]">
+                          Desativado
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setQuickEditing(l)}
+                    disabled={!canEdit}
+                    className="rounded-none uppercase tracking-wider text-[11px] shrink-0"
+                    title={canEdit ? "Trocar URL deste link" : "Faça login para alterar"}
+                  >
+                    {canEdit ? (
+                      <>
+                        <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                        Alterar
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="h-3.5 w-3.5 mr-1.5" />
+                        Alterar
+                      </>
+                    )}
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
         </CardContent>
       </Card>
 
+      {/* Diálogo simples: 2 cliques para trocar o link */}
+      <QuickEditLinkDialog
+        link={quickEditing}
+        onClose={() => setQuickEditing(null)}
+        onSave={(p) => upsertMutation.mutate(p)}
+        saving={upsertMutation.isPending}
+      />
+
+      {/* Diálogo avançado original */}
       <EditLinkDialog
         link={editing ?? (creating ? ({} as Link) : null)}
         isNew={creating}
@@ -452,6 +555,93 @@ export default function Links() {
         saving={upsertMutation.isPending}
       />
     </div>
+  );
+}
+
+function QuickEditLinkDialog({
+  link,
+  onClose,
+  onSave,
+  saving,
+}: {
+  link: Link | null;
+  onClose: () => void;
+  onSave: (p: Partial<Link> & { id: string }) => void;
+  saving: boolean;
+}) {
+  const [url, setUrl] = useState("");
+  const [label, setLabel] = useState("");
+  const [active, setActive] = useState(true);
+
+  // sincroniza ao abrir
+  useMemo(() => {
+    setUrl(link?.destination_url ?? "");
+    setLabel(link?.short_label ?? "");
+    setActive(link?.active ?? true);
+  }, [link]);
+
+  if (!link) return null;
+
+  const handleSave = () => {
+    const cleanUrl = url.trim();
+    if (!cleanUrl) {
+      toast({
+        title: "Cole o link",
+        description: "O endereço (URL) não pode ficar vazio.",
+        variant: "destructive",
+      });
+      return;
+    }
+    onSave({
+      id: link.id,
+      destination_url: cleanUrl,
+      short_label: label.trim() || link.short_label,
+      active,
+    });
+  };
+
+  return (
+    <Dialog open={!!link} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Alterar link</DialogTitle>
+          <DialogDescription>
+            Cole o novo endereço (URL) e clique em salvar.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Nome do link</Label>
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Ex.: Link do dia"
+            />
+          </div>
+          <div>
+            <Label>Endereço (URL)</Label>
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://..."
+              autoFocus
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={active} onCheckedChange={setActive} />
+            <Label>Ativo</Label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -513,7 +703,7 @@ function EditLinkDialog({
     <Dialog open={!!link} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isNew ? "Novo link" : "Editar link"}</DialogTitle>
+          <DialogTitle>{isNew ? "Novo link" : "Editar link (avançado)"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -536,7 +726,7 @@ function EditLinkDialog({
                 <SelectContent>
                   {LINK_TYPES.map((t) => (
                     <SelectItem key={t} value={t}>
-                      {t}
+                      {typeLabel(t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
