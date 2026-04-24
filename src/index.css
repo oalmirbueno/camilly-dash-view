@@ -94,11 +94,14 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Better wrapping on small screens */
+    -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 16px;
+    /* Fluid base: 14.5px → 16px between 360px and 1024px */
+    font-size: clamp(14.5px, 0.875rem + 0.25vw, 16px);
     line-height: 1.6;
     font-weight: 450;
     -webkit-font-smoothing: antialiased;
@@ -110,7 +113,13 @@
     color: hsl(var(--foreground));
     font-weight: 400;
     letter-spacing: -0.015em;
+    /* Avoid awkward breaks of long words on narrow screens */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
+  h1 { font-size: clamp(1.75rem, 1.35rem + 1.8vw, 3.25rem); line-height: 1.05; }
+  h2 { font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.875rem); line-height: 1.15; }
+  h3 { font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); line-height: 1.2; }
   h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
@@ -126,17 +135,25 @@
 .label-sm,
 .section-label {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
+  /* Slightly smaller tracking on mobile, looser on desktop */
+  font-size: clamp(10px, 0.625rem + 0.1vw, 11px);
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: hsl(var(--gold));
+  line-height: 1.4;
+}
+@media (min-width: 768px) {
+  .section-label,
+  .label-sm {
+    letter-spacing: 0.22em;
+  }
 }
 
 .heading-display {
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.05;
   letter-spacing: -0.02em;
 }
 
@@ -148,8 +165,8 @@
 
 .body-text {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: clamp(14px, 0.85rem + 0.2vw, 15px);
+  line-height: 1.65;
   font-weight: 450;
   color: hsl(var(--foreground) / 0.78);
 }
@@ -158,6 +175,8 @@
   font-family: 'DM Serif Display', serif;
   font-weight: 400;
   letter-spacing: -0.015em;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  line-height: 1.15;
 }
 
 .stat-number {
@@ -165,6 +184,45 @@
   font-weight: 700;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  line-height: 1;
+}
+
+/* Mobile data card (used to render table rows as stacked cards) */
+.data-card {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.data-card + .data-card {
+  border-top: none;
+}
+.data-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.data-row > dt {
+  flex-shrink: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.data-row > dd {
+  text-align: right;
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  min-width: 0;
+  word-break: break-word;
 }
 
 /* ========== ACCENTS ========== */
