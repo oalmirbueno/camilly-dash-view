@@ -140,6 +140,7 @@ export default function Links() {
   const [editing, setEditing] = useState<Link | null>(null);
   const [quickEditing, setQuickEditing] = useState<Link | null>(null);
   const [creating, setCreating] = useState(false);
+  const [simpleCreating, setSimpleCreating] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["affiliate_links"],
@@ -238,6 +239,7 @@ export default function Links() {
       setEditing(null);
       setQuickEditing(null);
       setCreating(false);
+      setSimpleCreating(false);
     },
     onError: (e: any) => {
       toast({
@@ -275,13 +277,27 @@ export default function Links() {
             <Settings2 className="h-4 w-4 mr-1.5" />
             {advanced ? "Modo simples" : "Modo avançado"}
           </Button>
-          {advanced && (
+          {advanced ? (
             <Button
               onClick={() => setCreating(true)}
               disabled={!canEdit}
               className="rounded-none uppercase tracking-wider text-[11px] h-10"
             >
               {canEdit ? "Novo link" : (
+                <>
+                  <Lock className="h-4 w-4 mr-1.5" />
+                  Novo link
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setSimpleCreating(true)}
+              disabled={!canEdit}
+              className="rounded-none uppercase tracking-wider text-[11px] h-10"
+              title={canEdit ? "Adicionar um novo link" : "Faça login para adicionar"}
+            >
+              {canEdit ? "+ Novo link" : (
                 <>
                   <Lock className="h-4 w-4 mr-1.5" />
                   Novo link
@@ -543,6 +559,14 @@ export default function Links() {
         saving={upsertMutation.isPending}
       />
 
+      {/* Diálogo simples para criar um link novo */}
+      <SimpleNewLinkDialog
+        open={simpleCreating}
+        onClose={() => setSimpleCreating(false)}
+        onSave={(p) => upsertMutation.mutate(p)}
+        saving={upsertMutation.isPending}
+      />
+
       {/* Diálogo avançado original */}
       <EditLinkDialog
         link={editing ?? (creating ? ({} as Link) : null)}
@@ -798,6 +822,120 @@ function EditLinkDialog({
               />
               <Label>Ativo</Label>
             </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SimpleNewLinkDialog({
+  open,
+  onClose,
+  onSave,
+  saving,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSave: (p: Partial<Link>) => void;
+  saving: boolean;
+}) {
+  const [label, setLabel] = useState("");
+  const [url, setUrl] = useState("");
+  const [linkType, setLinkType] = useState<string>("daily");
+  const [active, setActive] = useState(true);
+
+  // limpa ao fechar/abrir
+  useMemo(() => {
+    if (open) {
+      setLabel("");
+      setUrl("");
+      setLinkType("daily");
+      setActive(true);
+    }
+  }, [open]);
+
+  const handleSave = () => {
+    const cleanUrl = url.trim();
+    const cleanLabel = label.trim();
+    if (!cleanLabel) {
+      toast({
+        title: "Dê um nome ao link",
+        description: "Ex.: Link do dia, Plataforma X, RTP da semana.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!cleanUrl) {
+      toast({
+        title: "Cole o endereço (URL)",
+        description: "O link precisa começar com https://",
+        variant: "destructive",
+      });
+      return;
+    }
+    onSave({
+      short_label: cleanLabel,
+      destination_url: cleanUrl,
+      link_type: linkType,
+      fixed_link: linkType === "fixed",
+      active,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Novo link</DialogTitle>
+          <DialogDescription>
+            Preencha o nome e cole o endereço (URL). É só isso.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label>Nome do link</Label>
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Ex.: Link do dia"
+              autoFocus
+            />
+          </div>
+          <div>
+            <Label>Endereço (URL)</Label>
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://..."
+            />
+          </div>
+          <div>
+            <Label>Tipo</Label>
+            <Select value={linkType} onValueChange={setLinkType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LINK_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {typeLabel(t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={active} onCheckedChange={setActive} />
+            <Label>Ativo</Label>
           </div>
         </div>
         <DialogFooter>
