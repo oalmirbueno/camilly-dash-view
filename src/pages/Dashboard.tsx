@@ -140,12 +140,16 @@ export default function Dashboard() {
         <>
           {/* ============ FLOW SECTION ============ */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
               <div>
-                <p className="section-label mb-1">Fluxo · Últimas 24 horas</p>
-                <h2 className="font-display text-2xl text-foreground">Pipeline operacional</h2>
+                <p className="section-label mb-2">Fluxo · Últimas 24 horas</p>
+                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+                  Pipeline operacional
+                </h2>
               </div>
-              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+                4 etapas
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -178,12 +182,16 @@ export default function Dashboard() {
 
           {/* ============ DELIVERY SECTION ============ */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
               <div>
-                <p className="section-label mb-1">Entregas · Últimas 24 horas</p>
-                <h2 className="font-display text-2xl text-foreground">Resultado por canal</h2>
+                <p className="section-label mb-2">Entregas · Últimas 24 horas</p>
+                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+                  Resultado por canal
+                </h2>
               </div>
-              <div className="hidden sm:block w-12 h-px bg-gold/40" />
+              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+                Telegram · WhatsApp
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
