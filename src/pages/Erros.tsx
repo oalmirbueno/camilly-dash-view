@@ -97,6 +97,7 @@ export default function Erros() {
                     <TableHead>Severidade</TableHead>
                     <TableHead>Mensagem</TableHead>
                     <TableHead>Resolvido</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -115,6 +116,16 @@ export default function Erros() {
                           <span className="text-success font-medium text-sm">Sim</span>
                         ) : (
                           <span className="text-destructive font-medium text-sm">Não</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {!err.resolved && (
+                          <FutureActionButton
+                            label="Marcar como resolvido"
+                            icon={CheckCircle2}
+                            description="Vai marcar este erro como resolvido no log e removê-lo da fila de pendências."
+                            hint="Aguardando endpoint de gravação."
+                          />
                         )}
                       </TableCell>
                     </TableRow>
