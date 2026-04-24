@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/StateViews";
+import { AutomationToggle } from "@/components/AutomationToggle";
 
 type Summary = {
   automation_paused: boolean | null;
