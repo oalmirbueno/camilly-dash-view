@@ -140,6 +140,7 @@ export default function Links() {
   const [editing, setEditing] = useState<Link | null>(null);
   const [quickEditing, setQuickEditing] = useState<Link | null>(null);
   const [creating, setCreating] = useState(false);
+  const [simpleCreating, setSimpleCreating] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["affiliate_links"],
