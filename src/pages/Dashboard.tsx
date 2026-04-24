@@ -125,14 +125,14 @@ export default function Dashboard() {
         <>
           {/* ============ FLOW SECTION ============ */}
           <section>
-            <div className="flex items-end justify-between mb-5 pb-3 border-b border-border">
-              <div>
-                <p className="section-label mb-2">Fluxo · Últimas 24 horas</p>
-                <h2 className="font-display text-[1.75rem] text-foreground leading-tight">
+            <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5 pb-3 border-b border-border">
+              <div className="min-w-0">
+                <p className="section-label mb-1.5 sm:mb-2">Fluxo · Últimas 24 horas</p>
+                <h2 className="font-display text-foreground leading-tight">
                   Pipeline operacional
                 </h2>
               </div>
-              <span className="hidden sm:inline-block text-xs text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1">
+              <span className="hidden sm:inline-block text-[11px] text-muted-foreground tracking-[0.18em] uppercase font-medium pb-1 shrink-0">
                 4 etapas
               </span>
             </div>
