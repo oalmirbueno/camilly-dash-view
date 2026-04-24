@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { LoadingRows, EmptyState, ErrorState } from "@/components/StateViews";
 import { toast } from "@/hooks/use-toast";
-import { Pencil, Lock, LogIn } from "lucide-react";
+import { Pencil, Lock, LogIn, Settings2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -76,6 +76,7 @@ export default function Templates() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [channelFilter, setChannelFilter] = useState<string>("all");
   const [editing, setEditing] = useState<Template | null>(null);
+  const [advanced, setAdvanced] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["message_templates"],
