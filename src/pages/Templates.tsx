@@ -314,6 +314,7 @@ function EditTemplateDialog({
   const [form, setForm] = useState<Template | null>(template);
   const [varsText, setVarsText] = useState("");
   const [varsError, setVarsError] = useState<string | null>(null);
+  const [advanced, setAdvanced] = useState(false);
 
   // sync when prop changes
   useMemo(() => {
@@ -324,6 +325,7 @@ function EditTemplateDialog({
         : ""
     );
     setVarsError(null);
+    setAdvanced(false);
   }, [template]);
 
   if (!form) return null;
