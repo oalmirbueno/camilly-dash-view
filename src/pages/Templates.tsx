@@ -132,17 +132,29 @@ export default function Templates() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <header className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="sparkle-dot" />
-          <p className="section-label">Conteúdo · Modelos</p>
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="space-y-2 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="sparkle-dot" />
+            <p className="section-label">Conteúdo · Mensagens</p>
+          </div>
+          <h1 className="font-display text-foreground">Mensagens</h1>
+          <p className="body-text max-w-2xl">
+            Edite o texto das mensagens enviadas. Clique em uma mensagem para
+            alterar o conteúdo.
+          </p>
+          <div className="line-gold mt-1" />
         </div>
-        <h1 className="font-display text-foreground">Templates de mensagem</h1>
-        <p className="body-text max-w-2xl">
-          Modelos reais usados pelo motor de envio. Edite com cuidado · o n8n
-          lê esta tabela em produção.
-        </p>
-        <div className="line-gold mt-1" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setAdvanced((v) => !v)}
+          className="rounded-none uppercase tracking-wider text-[11px] h-10 self-start sm:self-auto shrink-0"
+          title="Mostrar filtros e detalhes técnicos"
+        >
+          <Settings2 className="h-4 w-4 mr-1.5" />
+          {advanced ? "Modo simples" : "Modo avançado"}
+        </Button>
       </header>
 
       {!canEdit && (
@@ -150,7 +162,7 @@ export default function Templates() {
           <div className="flex items-center gap-2 text-sm">
             <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>
-              Visualização liberada. Faça login para editar templates.
+              Visualização liberada. Faça login para editar mensagens.
             </span>
           </div>
           <Button asChild size="sm" variant="outline" className="rounded-none uppercase tracking-wider text-[11px] self-start sm:self-auto">
@@ -164,59 +176,67 @@ export default function Templates() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filtros</CardTitle>
+          <CardTitle className="text-base">{advanced ? "Filtros" : "Buscar"}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          {advanced ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <Input
+                placeholder="Buscar por nome ou chave"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Select value={activeFilter} onValueChange={(v: any) => setActiveFilter(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  <SelectItem value="active">Ativos</SelectItem>
+                  <SelectItem value="inactive">Inativos</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas categorias</SelectItem>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={channelFilter} onValueChange={setChannelFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Canal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos canais</SelectItem>
+                  {CHANNELS.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
             <Input
-              placeholder="Buscar por nome ou chave"
+              placeholder="Buscar por nome da mensagem"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Select value={activeFilter} onValueChange={(v: any) => setActiveFilter(v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="inactive">Inativos</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas categorias</SelectItem>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={channelFilter} onValueChange={setChannelFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Canal" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos canais</SelectItem>
-                {CHANNELS.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            Templates ({filtered.length})
+            Mensagens ({filtered.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -225,8 +245,8 @@ export default function Templates() {
           ) : error ? (
             <ErrorState error={error} source="message_templates" />
           ) : filtered.length === 0 ? (
-            <EmptyState message="Nenhum template encontrado" />
-          ) : (
+            <EmptyState message="Nenhuma mensagem encontrada" />
+          ) : advanced ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -287,6 +307,51 @@ export default function Templates() {
                 ))}
               </TableBody>
             </Table>
+          ) : (
+            <ul className="divide-y divide-border">
+              {filtered.map((t) => (
+                <li
+                  key={t.id}
+                  className="flex items-start gap-3 px-4 py-3 sm:px-6 sm:py-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium truncate">
+                        {t.template_name}
+                      </span>
+                      {!t.active && (
+                        <Badge variant="outline" className="text-[10px]">
+                          Desativado
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                      {t.body_template ?? ""}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(t)}
+                    disabled={!canEdit}
+                    className="rounded-none uppercase tracking-wider text-[11px] shrink-0"
+                    title={canEdit ? "Editar texto da mensagem" : "Faça login para editar"}
+                  >
+                    {canEdit ? (
+                      <>
+                        <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                        Editar
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="h-3.5 w-3.5 mr-1.5" />
+                        Editar
+                      </>
+                    )}
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
         </CardContent>
       </Card>
