@@ -143,7 +143,7 @@ export default function Mensagens() {
       if (r.destination_platform === "telegram") telegram++;
       else if (r.destination_platform === "whatsapp") whatsapp++;
     });
-    const pct = (n: number) => (total === 0 ? "—" : `${Math.round((n / total) * 100)}%`);
+    const pct = (n: number) => (total === 0 ? "" : `${Math.round((n / total) * 100)}%`);
     return [
       { label: "Resultados", value: total },
       { label: "Sucesso", value: total ? `${sent} · ${pct(sent)}` : "0", tone: "success" },

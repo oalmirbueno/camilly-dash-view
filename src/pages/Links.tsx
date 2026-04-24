@@ -412,7 +412,7 @@ export default function Links() {
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
                       ) : (
-                        "—"
+                        ""
                       )}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
