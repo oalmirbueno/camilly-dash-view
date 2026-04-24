@@ -195,7 +195,7 @@ export default function Mensagens() {
         </div>
         <h1 className="font-display text-foreground">Envios</h1>
         <p className="body-text max-w-xl">
-          Feed de envios em tempo real — Telegram e WhatsApp. Atualiza a cada 30s.
+          Feed de envios em tempo real · Telegram e WhatsApp. Atualiza a cada 30s.
         </p>
         <div className="line-gold mt-1" />
       </header>

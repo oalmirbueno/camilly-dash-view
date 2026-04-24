@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /**
- * Persistent filter state — hybrid URL + localStorage.
+ * Persistent filter state - hybrid URL + localStorage.
  *
  * Priority on mount: URL search params → localStorage → defaults.
  * Updates are mirrored to BOTH the URL (replaceState) and localStorage,

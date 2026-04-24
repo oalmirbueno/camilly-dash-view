@@ -91,7 +91,7 @@ export default function Dashboard() {
             </h1>
             <div className="mt-4 sm:mt-5 line-gold" />
             <p className="body-text mt-4 sm:mt-5">
-              Monitoramento ao vivo da automação Camilly — captura, processamento
+              Monitoramento ao vivo da automação Camilly · captura, processamento
               e entrega nos canais Telegram e WhatsApp. Atualiza a cada 30s.
             </p>
           </div>

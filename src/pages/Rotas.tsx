@@ -59,7 +59,7 @@ export default function Rotas() {
         </div>
         <h1 className="font-display text-foreground">Rotas</h1>
         <p className="body-text max-w-xl">
-          Status das rotas de entrega — atividade nas últimas 24h.
+          Status das rotas de entrega · atividade nas últimas 24h.
         </p>
         <div className="line-gold mt-1" />
       </header>

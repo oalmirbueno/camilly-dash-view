@@ -40,7 +40,7 @@ export default function Erros() {
         </div>
         <h1 className="font-display text-foreground">Erros</h1>
         <p className="body-text max-w-xl">
-          Log de erros da automação — atualizado a cada 30s.
+          Log de erros da automação · atualizado a cada 30s.
         </p>
         <div className="line-gold mt-1" />
       </header>

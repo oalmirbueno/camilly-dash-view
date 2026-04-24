@@ -138,7 +138,7 @@ export default function Templates() {
         </div>
         <h1 className="font-display text-foreground">Templates de mensagem</h1>
         <p className="body-text max-w-2xl">
-          Modelos reais usados pelo motor de envio. Edite com cuidado — o n8n
+          Modelos reais usados pelo motor de envio. Edite com cuidado · o n8n
           lê esta tabela em produção.
         </p>
         <div className="line-gold mt-1" />
