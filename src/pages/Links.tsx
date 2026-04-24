@@ -277,13 +277,27 @@ export default function Links() {
             <Settings2 className="h-4 w-4 mr-1.5" />
             {advanced ? "Modo simples" : "Modo avançado"}
           </Button>
-          {advanced && (
+          {advanced ? (
             <Button
               onClick={() => setCreating(true)}
               disabled={!canEdit}
               className="rounded-none uppercase tracking-wider text-[11px] h-10"
             >
               {canEdit ? "Novo link" : (
+                <>
+                  <Lock className="h-4 w-4 mr-1.5" />
+                  Novo link
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setSimpleCreating(true)}
+              disabled={!canEdit}
+              className="rounded-none uppercase tracking-wider text-[11px] h-10"
+              title={canEdit ? "Adicionar um novo link" : "Faça login para adicionar"}
+            >
+              {canEdit ? "+ Novo link" : (
                 <>
                   <Lock className="h-4 w-4 mr-1.5" />
                   Novo link
