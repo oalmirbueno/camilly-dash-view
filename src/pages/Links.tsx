@@ -408,7 +408,15 @@ export default function Links() {
         </div>
       )}
 
-      {/* Busca: simples no modo simples, completa no avançado */}
+      {!advanced && (
+        <div className="border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+          Cadastre aqui os links que a automação pode usar. Se for PlayBet/Oportunidades, marque como{" "}
+          <span className="font-medium text-foreground">Curadoria/Oportunidade</span>. Se for uma casa de aposta, marque como{" "}
+          <span className="font-medium text-foreground">Casa de aposta</span>. A automação cuida da inteligência dos sinais por trás.
+        </div>
+      )}
+
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
