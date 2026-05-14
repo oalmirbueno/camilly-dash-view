@@ -661,13 +661,14 @@ function QuickEditLinkDialog({
   saving: boolean;
 }) {
   const [url, setUrl] = useState("");
-  const [label, setLabel] = useState("");
+  const [name, setName] = useState("");
+  const [kind, setKind] = useState<PlatformKind>("casa_aposta");
   const [active, setActive] = useState(true);
 
-  // sincroniza ao abrir
   useMemo(() => {
     setUrl(link?.destination_url ?? "");
-    setLabel(link?.short_label ?? "");
+    setName(link?.platform_name ?? link?.short_label ?? "");
+    setKind(getKind(link ?? {}));
     setActive(link?.active ?? true);
   }, [link]);
 
@@ -675,19 +676,31 @@ function QuickEditLinkDialog({
 
   const handleSave = () => {
     const cleanUrl = url.trim();
+    const cleanName = name.trim();
     if (!cleanUrl) {
-      toast({
-        title: "Cole o link",
-        description: "O endereço (URL) não pode ficar vazio.",
-        variant: "destructive",
-      });
+      toast({ title: "Cole o link", description: "O endereço (URL) não pode ficar vazio.", variant: "destructive" });
       return;
     }
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      toast({ title: "Endereço inválido", description: "O link precisa começar com http:// ou https://", variant: "destructive" });
+      return;
+    }
+    if (FORBIDDEN_PUBLIC_NAMES.includes(cleanName.toLowerCase())) {
+      toast({ title: "Escolha outro nome", description: "Esse nome não pode ser usado no grupo.", variant: "destructive" });
+      return;
+    }
+    const finalName = cleanName || prettyNameFromDomain(domainFromUrl(cleanUrl)) || "Plataforma";
     onSave({
       id: link.id,
       destination_url: cleanUrl,
-      short_label: label.trim() || link.short_label,
+      platform_name: finalName,
+      short_label: finalName,
       active,
+      metadata_json: {
+        ...(link.metadata_json ?? {}),
+        platform_name: finalName,
+        platform_kind: kind,
+      },
     });
   };
 
@@ -696,27 +709,41 @@ function QuickEditLinkDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Alterar link</DialogTitle>
-          <DialogDescription>
-            Cole o novo endereço (URL) e clique em salvar.
-          </DialogDescription>
+          <DialogDescription>Atualize o nome, o endereço ou o tipo.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nome do link</Label>
-            <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="Ex.: Link do dia"
-            />
+            <Label>Nome que aparece no grupo</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: PlayBet Oportunidades" />
           </div>
           <div>
             <Label>Endereço (URL)</Label>
             <Input
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                setUrl(v);
+                if (!name.trim() && v.trim()) {
+                  const d = detectPlatform(v);
+                  setName(d.name);
+                  setKind(d.kind);
+                }
+              }}
               placeholder="https://..."
-              autoFocus
             />
+          </div>
+          <div>
+            <Label>Tipo do link</Label>
+            <Select value={kind} onValueChange={(v) => setKind(v as PlatformKind)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PLATFORM_KIND_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={active} onCheckedChange={setActive} />
@@ -724,9 +751,7 @@ function QuickEditLinkDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </Button>
