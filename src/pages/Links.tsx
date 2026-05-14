@@ -940,46 +940,64 @@ function SimpleNewLinkDialog({
   onSave: (p: Partial<Link>) => void;
   saving: boolean;
 }) {
-  const [label, setLabel] = useState("");
+  const [name, setName] = useState("");
   const [url, setUrl] = useState("");
-  const [linkType, setLinkType] = useState<string>("daily");
+  const [kind, setKind] = useState<PlatformKind>("casa_aposta");
+  const [note, setNote] = useState("");
   const [active, setActive] = useState(true);
+  const [touchedName, setTouchedName] = useState(false);
 
-  // limpa ao fechar/abrir
   useMemo(() => {
     if (open) {
-      setLabel("");
+      setName("");
       setUrl("");
-      setLinkType("daily");
+      setKind("casa_aposta");
+      setNote("");
       setActive(true);
+      setTouchedName(false);
     }
   }, [open]);
 
+  const onUrlChange = (v: string) => {
+    setUrl(v);
+    if (v.trim()) {
+      const d = detectPlatform(v);
+      if (!touchedName || !name.trim()) setName(d.name);
+      // só sobrescreve o tipo se o usuário ainda não tocou (mantemos simples: sempre sugere)
+      setKind(d.kind);
+    }
+  };
+
   const handleSave = () => {
     const cleanUrl = url.trim();
-    const cleanLabel = label.trim();
-    if (!cleanLabel) {
-      toast({
-        title: "Dê um nome ao link",
-        description: "Ex.: Link do dia, Plataforma X, RTP da semana.",
-        variant: "destructive",
-      });
+    let cleanName = name.trim();
+    if (!cleanUrl) {
+      toast({ title: "Cole o endereço (URL)", description: "Cole o link da plataforma.", variant: "destructive" });
       return;
     }
-    if (!cleanUrl) {
-      toast({
-        title: "Cole o endereço (URL)",
-        description: "O link precisa começar com https://",
-        variant: "destructive",
-      });
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      toast({ title: "Endereço inválido", description: "O link precisa começar com http:// ou https://", variant: "destructive" });
+      return;
+    }
+    if (!cleanName) {
+      cleanName = prettyNameFromDomain(domainFromUrl(cleanUrl)) || "Plataforma";
+    }
+    if (FORBIDDEN_PUBLIC_NAMES.includes(cleanName.toLowerCase())) {
+      toast({ title: "Escolha outro nome", description: "Esse nome não pode ser usado no grupo.", variant: "destructive" });
       return;
     }
     onSave({
-      short_label: cleanLabel,
+      platform_name: cleanName,
+      short_label: cleanName,
       destination_url: cleanUrl,
-      link_type: linkType,
-      fixed_link: linkType === "fixed",
+      link_type: "fixed",
+      fixed_link: true,
       active,
+      metadata_json: {
+        platform_name: cleanName,
+        platform_kind: kind,
+        ...(note.trim() ? { internal_note: note.trim() } : {}),
+      },
     });
   };
 
@@ -989,41 +1007,50 @@ function SimpleNewLinkDialog({
         <DialogHeader>
           <DialogTitle>Novo link</DialogTitle>
           <DialogDescription>
-            Preencha o nome e cole o endereço (URL). É só isso.
+            Cole o endereço, confirme o nome e escolha o tipo.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nome do link</Label>
+            <Label>Endereço (URL)</Label>
             <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="Ex.: Link do dia"
+              value={url}
+              onChange={(e) => onUrlChange(e.target.value)}
+              placeholder="https://..."
               autoFocus
             />
           </div>
           <div>
-            <Label>Endereço (URL)</Label>
+            <Label>Nome que aparece no grupo</Label>
             <Input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
+              value={name}
+              onChange={(e) => {
+                setTouchedName(true);
+                setName(e.target.value);
+              }}
+              placeholder="Ex.: PlayBet Oportunidades"
             />
           </div>
           <div>
-            <Label>Tipo</Label>
-            <Select value={linkType} onValueChange={setLinkType}>
+            <Label>Tipo do link</Label>
+            <Select value={kind} onValueChange={(v) => setKind(v as PlatformKind)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {LINK_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {typeLabel(t)}
-                  </SelectItem>
+                {PLATFORM_KIND_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label>Observação interna (opcional)</Label>
+            <Input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Só você vê isso"
+            />
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={active} onCheckedChange={setActive} />
@@ -1031,9 +1058,7 @@ function SimpleNewLinkDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </Button>
