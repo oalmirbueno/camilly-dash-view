@@ -574,10 +574,10 @@ export default function Links() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium truncate">
-                        {l.short_label || l.platform_name || "(sem nome)"}
+                        {l.platform_name || l.short_label || "(sem nome)"}
                       </span>
                       <Badge variant="outline" className="text-[10px]">
-                        {typeLabel(l.link_type) || "Link"}
+                        {kindLabel(getKind(l))}
                       </Badge>
                       {!l.active && (
                         <Badge variant="outline" className="text-[10px]">
@@ -585,6 +585,11 @@ export default function Links() {
                         </Badge>
                       )}
                     </div>
+                    {l.destination_url && (
+                      <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                        {l.destination_url}
+                      </p>
+                    )}
                   </div>
                   <Button
                     size="sm"
