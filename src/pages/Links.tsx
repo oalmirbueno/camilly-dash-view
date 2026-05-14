@@ -55,7 +55,7 @@ type Link = {
 
 const LINK_TYPES = ["fixed", "daily", "recent", "rtp", "platform"] as const;
 
-// Linguagem leiga para os tipos de link
+// Linguagem leiga para os tipos de link (modo avançado)
 const TYPE_LABELS: Record<string, string> = {
   fixed: "Permanente",
   daily: "Do dia",
@@ -65,6 +65,58 @@ const TYPE_LABELS: Record<string, string> = {
 };
 const typeLabel = (t: string | null | undefined) =>
   t ? TYPE_LABELS[t] ?? t : "";
+
+// Tipos de plataforma para a usuária leiga (modo simples).
+// São salvos em metadata_json.platform_kind.
+type PlatformKind = "curadoria_oportunidades" | "casa_aposta" | "plataforma";
+
+const PLATFORM_KIND_OPTIONS: { value: PlatformKind; label: string }[] = [
+  { value: "curadoria_oportunidades", label: "Curadoria/Oportunidade" },
+  { value: "casa_aposta", label: "Casa de aposta" },
+  { value: "plataforma", label: "Outra plataforma" },
+];
+
+const kindLabel = (k: string | null | undefined) =>
+  PLATFORM_KIND_OPTIONS.find((o) => o.value === k)?.label ?? "Casa de aposta";
+
+const FORBIDDEN_PUBLIC_NAMES = ["link's selecionados", "links selecionados"];
+
+function domainFromUrl(url: string): string {
+  try {
+    const u = new URL(url.trim());
+    return u.hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function prettyNameFromDomain(domain: string): string {
+  if (!domain) return "";
+  const core = domain.split(".")[0] ?? domain;
+  return core.charAt(0).toUpperCase() + core.slice(1);
+}
+
+// Detecta plataforma com base na URL colada.
+function detectPlatform(url: string): { name: string; kind: PlatformKind } {
+  const u = url.toLowerCase();
+  if (u.includes("playbet") || u.includes("playbatch") || u.includes("oportunidades.playbet")) {
+    return { name: "PlayBet Oportunidades", kind: "curadoria_oportunidades" };
+  }
+  if (u.includes("superbet")) {
+    return { name: "SuperBet", kind: "casa_aposta" };
+  }
+  if (u.includes("sportingbet")) {
+    return { name: "SportingBet", kind: "casa_aposta" };
+  }
+  const dom = domainFromUrl(url);
+  return { name: prettyNameFromDomain(dom), kind: "casa_aposta" };
+}
+
+function getKind(l: { metadata_json?: any }): PlatformKind {
+  const k = l?.metadata_json?.platform_kind;
+  if (k === "curadoria_oportunidades" || k === "casa_aposta" || k === "plataforma") return k;
+  return "casa_aposta";
+}
 
 function fmtDate(s: string | null) {
   if (!s) return "";
@@ -258,11 +310,13 @@ export default function Links() {
             <span className="sparkle-dot" />
             <p className="section-label">Conteúdo · Distribuição</p>
           </div>
-          <h1 className="font-display text-foreground">Links de afiliado</h1>
+          <h1 className="font-display text-foreground">
+            {advanced ? "Links de afiliado" : "Links e Plataformas"}
+          </h1>
           <p className="body-text max-w-xl">
-            Troque o link que está sendo divulgado. Clique em
-            <span className="font-medium"> Alterar </span>
-            para colar uma nova URL.
+            {advanced
+              ? "Gerencie todos os links de afiliado, validade, plataforma e campanha."
+              : "Cadastre os links que a automação pode usar. Marque se é Curadoria/Oportunidade ou Casa de aposta."}
           </p>
           <div className="line-gold mt-1" />
         </div>
@@ -354,7 +408,15 @@ export default function Links() {
         </div>
       )}
 
-      {/* Busca: simples no modo simples, completa no avançado */}
+      {!advanced && (
+        <div className="border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+          Cadastre aqui os links que a automação pode usar. Se for PlayBet/Oportunidades, marque como{" "}
+          <span className="font-medium text-foreground">Curadoria/Oportunidade</span>. Se for uma casa de aposta, marque como{" "}
+          <span className="font-medium text-foreground">Casa de aposta</span>. A automação cuida da inteligência dos sinais por trás.
+        </div>
+      )}
+
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
@@ -512,10 +574,10 @@ export default function Links() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium truncate">
-                        {l.short_label || l.platform_name || "(sem nome)"}
+                        {l.platform_name || l.short_label || "(sem nome)"}
                       </span>
                       <Badge variant="outline" className="text-[10px]">
-                        {typeLabel(l.link_type) || "Link"}
+                        {kindLabel(getKind(l))}
                       </Badge>
                       {!l.active && (
                         <Badge variant="outline" className="text-[10px]">
@@ -523,6 +585,11 @@ export default function Links() {
                         </Badge>
                       )}
                     </div>
+                    {l.destination_url && (
+                      <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                        {l.destination_url}
+                      </p>
+                    )}
                   </div>
                   <Button
                     size="sm"
@@ -594,13 +661,14 @@ function QuickEditLinkDialog({
   saving: boolean;
 }) {
   const [url, setUrl] = useState("");
-  const [label, setLabel] = useState("");
+  const [name, setName] = useState("");
+  const [kind, setKind] = useState<PlatformKind>("casa_aposta");
   const [active, setActive] = useState(true);
 
-  // sincroniza ao abrir
   useMemo(() => {
     setUrl(link?.destination_url ?? "");
-    setLabel(link?.short_label ?? "");
+    setName(link?.platform_name ?? link?.short_label ?? "");
+    setKind(getKind(link ?? {}));
     setActive(link?.active ?? true);
   }, [link]);
 
@@ -608,19 +676,31 @@ function QuickEditLinkDialog({
 
   const handleSave = () => {
     const cleanUrl = url.trim();
+    const cleanName = name.trim();
     if (!cleanUrl) {
-      toast({
-        title: "Cole o link",
-        description: "O endereço (URL) não pode ficar vazio.",
-        variant: "destructive",
-      });
+      toast({ title: "Cole o link", description: "O endereço (URL) não pode ficar vazio.", variant: "destructive" });
       return;
     }
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      toast({ title: "Endereço inválido", description: "O link precisa começar com http:// ou https://", variant: "destructive" });
+      return;
+    }
+    if (FORBIDDEN_PUBLIC_NAMES.includes(cleanName.toLowerCase())) {
+      toast({ title: "Escolha outro nome", description: "Esse nome não pode ser usado no grupo.", variant: "destructive" });
+      return;
+    }
+    const finalName = cleanName || prettyNameFromDomain(domainFromUrl(cleanUrl)) || "Plataforma";
     onSave({
       id: link.id,
       destination_url: cleanUrl,
-      short_label: label.trim() || link.short_label,
+      platform_name: finalName,
+      short_label: finalName,
       active,
+      metadata_json: {
+        ...(link.metadata_json ?? {}),
+        platform_name: finalName,
+        platform_kind: kind,
+      },
     });
   };
 
@@ -629,27 +709,41 @@ function QuickEditLinkDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Alterar link</DialogTitle>
-          <DialogDescription>
-            Cole o novo endereço (URL) e clique em salvar.
-          </DialogDescription>
+          <DialogDescription>Atualize o nome, o endereço ou o tipo.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nome do link</Label>
-            <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="Ex.: Link do dia"
-            />
+            <Label>Nome que aparece no grupo</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: PlayBet Oportunidades" />
           </div>
           <div>
             <Label>Endereço (URL)</Label>
             <Input
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                setUrl(v);
+                if (!name.trim() && v.trim()) {
+                  const d = detectPlatform(v);
+                  setName(d.name);
+                  setKind(d.kind);
+                }
+              }}
               placeholder="https://..."
-              autoFocus
             />
+          </div>
+          <div>
+            <Label>Tipo do link</Label>
+            <Select value={kind} onValueChange={(v) => setKind(v as PlatformKind)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PLATFORM_KIND_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={active} onCheckedChange={setActive} />
@@ -657,9 +751,7 @@ function QuickEditLinkDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </Button>
@@ -848,46 +940,64 @@ function SimpleNewLinkDialog({
   onSave: (p: Partial<Link>) => void;
   saving: boolean;
 }) {
-  const [label, setLabel] = useState("");
+  const [name, setName] = useState("");
   const [url, setUrl] = useState("");
-  const [linkType, setLinkType] = useState<string>("daily");
+  const [kind, setKind] = useState<PlatformKind>("casa_aposta");
+  const [note, setNote] = useState("");
   const [active, setActive] = useState(true);
+  const [touchedName, setTouchedName] = useState(false);
 
-  // limpa ao fechar/abrir
   useMemo(() => {
     if (open) {
-      setLabel("");
+      setName("");
       setUrl("");
-      setLinkType("daily");
+      setKind("casa_aposta");
+      setNote("");
       setActive(true);
+      setTouchedName(false);
     }
   }, [open]);
 
+  const onUrlChange = (v: string) => {
+    setUrl(v);
+    if (v.trim()) {
+      const d = detectPlatform(v);
+      if (!touchedName || !name.trim()) setName(d.name);
+      // só sobrescreve o tipo se o usuário ainda não tocou (mantemos simples: sempre sugere)
+      setKind(d.kind);
+    }
+  };
+
   const handleSave = () => {
     const cleanUrl = url.trim();
-    const cleanLabel = label.trim();
-    if (!cleanLabel) {
-      toast({
-        title: "Dê um nome ao link",
-        description: "Ex.: Link do dia, Plataforma X, RTP da semana.",
-        variant: "destructive",
-      });
+    let cleanName = name.trim();
+    if (!cleanUrl) {
+      toast({ title: "Cole o endereço (URL)", description: "Cole o link da plataforma.", variant: "destructive" });
       return;
     }
-    if (!cleanUrl) {
-      toast({
-        title: "Cole o endereço (URL)",
-        description: "O link precisa começar com https://",
-        variant: "destructive",
-      });
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      toast({ title: "Endereço inválido", description: "O link precisa começar com http:// ou https://", variant: "destructive" });
+      return;
+    }
+    if (!cleanName) {
+      cleanName = prettyNameFromDomain(domainFromUrl(cleanUrl)) || "Plataforma";
+    }
+    if (FORBIDDEN_PUBLIC_NAMES.includes(cleanName.toLowerCase())) {
+      toast({ title: "Escolha outro nome", description: "Esse nome não pode ser usado no grupo.", variant: "destructive" });
       return;
     }
     onSave({
-      short_label: cleanLabel,
+      platform_name: cleanName,
+      short_label: cleanName,
       destination_url: cleanUrl,
-      link_type: linkType,
-      fixed_link: linkType === "fixed",
+      link_type: "fixed",
+      fixed_link: true,
       active,
+      metadata_json: {
+        platform_name: cleanName,
+        platform_kind: kind,
+        ...(note.trim() ? { internal_note: note.trim() } : {}),
+      },
     });
   };
 
@@ -897,41 +1007,50 @@ function SimpleNewLinkDialog({
         <DialogHeader>
           <DialogTitle>Novo link</DialogTitle>
           <DialogDescription>
-            Preencha o nome e cole o endereço (URL). É só isso.
+            Cole o endereço, confirme o nome e escolha o tipo.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label>Nome do link</Label>
+            <Label>Endereço (URL)</Label>
             <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="Ex.: Link do dia"
+              value={url}
+              onChange={(e) => onUrlChange(e.target.value)}
+              placeholder="https://..."
               autoFocus
             />
           </div>
           <div>
-            <Label>Endereço (URL)</Label>
+            <Label>Nome que aparece no grupo</Label>
             <Input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
+              value={name}
+              onChange={(e) => {
+                setTouchedName(true);
+                setName(e.target.value);
+              }}
+              placeholder="Ex.: PlayBet Oportunidades"
             />
           </div>
           <div>
-            <Label>Tipo</Label>
-            <Select value={linkType} onValueChange={setLinkType}>
+            <Label>Tipo do link</Label>
+            <Select value={kind} onValueChange={(v) => setKind(v as PlatformKind)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {LINK_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {typeLabel(t)}
-                  </SelectItem>
+                {PLATFORM_KIND_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label>Observação interna (opcional)</Label>
+            <Input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Só você vê isso"
+            />
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={active} onCheckedChange={setActive} />
@@ -939,9 +1058,7 @@ function SimpleNewLinkDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Salvando..." : "Salvar"}
           </Button>
