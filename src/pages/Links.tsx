@@ -55,7 +55,7 @@ type Link = {
 
 const LINK_TYPES = ["fixed", "daily", "recent", "rtp", "platform"] as const;
 
-// Linguagem leiga para os tipos de link
+// Linguagem leiga para os tipos de link (modo avançado)
 const TYPE_LABELS: Record<string, string> = {
   fixed: "Permanente",
   daily: "Do dia",
@@ -65,6 +65,58 @@ const TYPE_LABELS: Record<string, string> = {
 };
 const typeLabel = (t: string | null | undefined) =>
   t ? TYPE_LABELS[t] ?? t : "";
+
+// Tipos de plataforma para a usuária leiga (modo simples).
+// São salvos em metadata_json.platform_kind.
+type PlatformKind = "curadoria_oportunidades" | "casa_aposta" | "plataforma";
+
+const PLATFORM_KIND_OPTIONS: { value: PlatformKind; label: string }[] = [
+  { value: "curadoria_oportunidades", label: "Curadoria/Oportunidade" },
+  { value: "casa_aposta", label: "Casa de aposta" },
+  { value: "plataforma", label: "Outra plataforma" },
+];
+
+const kindLabel = (k: string | null | undefined) =>
+  PLATFORM_KIND_OPTIONS.find((o) => o.value === k)?.label ?? "Casa de aposta";
+
+const FORBIDDEN_PUBLIC_NAMES = ["link's selecionados", "links selecionados"];
+
+function domainFromUrl(url: string): string {
+  try {
+    const u = new URL(url.trim());
+    return u.hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function prettyNameFromDomain(domain: string): string {
+  if (!domain) return "";
+  const core = domain.split(".")[0] ?? domain;
+  return core.charAt(0).toUpperCase() + core.slice(1);
+}
+
+// Detecta plataforma com base na URL colada.
+function detectPlatform(url: string): { name: string; kind: PlatformKind } {
+  const u = url.toLowerCase();
+  if (u.includes("playbet") || u.includes("playbatch") || u.includes("oportunidades.playbet")) {
+    return { name: "PlayBet Oportunidades", kind: "curadoria_oportunidades" };
+  }
+  if (u.includes("superbet")) {
+    return { name: "SuperBet", kind: "casa_aposta" };
+  }
+  if (u.includes("sportingbet")) {
+    return { name: "SportingBet", kind: "casa_aposta" };
+  }
+  const dom = domainFromUrl(url);
+  return { name: prettyNameFromDomain(dom), kind: "casa_aposta" };
+}
+
+function getKind(l: { metadata_json?: any }): PlatformKind {
+  const k = l?.metadata_json?.platform_kind;
+  if (k === "curadoria_oportunidades" || k === "casa_aposta" || k === "plataforma") return k;
+  return "casa_aposta";
+}
 
 function fmtDate(s: string | null) {
   if (!s) return "";
