@@ -310,11 +310,13 @@ export default function Links() {
             <span className="sparkle-dot" />
             <p className="section-label">Conteúdo · Distribuição</p>
           </div>
-          <h1 className="font-display text-foreground">Links de afiliado</h1>
+          <h1 className="font-display text-foreground">
+            {advanced ? "Links de afiliado" : "Links e Plataformas"}
+          </h1>
           <p className="body-text max-w-xl">
-            Troque o link que está sendo divulgado. Clique em
-            <span className="font-medium"> Alterar </span>
-            para colar uma nova URL.
+            {advanced
+              ? "Gerencie todos os links de afiliado, validade, plataforma e campanha."
+              : "Cadastre os links que a automação pode usar. Marque se é Curadoria/Oportunidade ou Casa de aposta."}
           </p>
           <div className="line-gold mt-1" />
         </div>
